@@ -1,0 +1,1247 @@
+<!-- Senride — Clickable Prototype (Passenger app · Driver app · Super-Admin panel) -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Senride — Clickable Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1ED; --surface:#FFFFFF; --surface-2:#F4F6F3;
+  --primary:#2E9E33; --primary-dark:#1E7D24; --primary-tint:#E5F6E0;
+  --green-vivid:#39AE34; --orange-vivid:#F5891E; --asphalt:#23262B;
+  --accent:#F5891E; --accent-tint:#FDE7CC;
+  --ink:#13201B; --ink-2:#5A6B63; --ink-3:#8A988F;
+  --line:#E3E8E3; --line-2:#EDF0EC;
+  --danger:#D64545; --danger-tint:#FBE6E6;
+  --success:#1F9D5A; --success-tint:#E1F4E9;
+  --wave:#1AA9F0; --om:#FF6B00;
+  --radius:20px; --radius-sm:14px;
+  --shadow:0 1px 2px rgba(19,32,27,.05), 0 10px 24px -12px rgba(19,32,27,.18);
+  --shadow-lg:0 18px 50px -18px rgba(19,32,27,.35);
+  --font:"Poppins",-apple-system,system-ui,sans-serif;
+  --display:"Poppins",var(--font);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{width:0;height:0;display:none}
+html,body{margin:0;height:100%}
+body{font-family:var(--font);color:var(--ink);overflow:hidden;
+  background:
+    radial-gradient(1100px 600px at 12% -8%, #DDF1D4 0%, transparent 60%),
+    radial-gradient(900px 600px at 100% 0%, #FCE6CC 0%, transparent 55%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+
+/* ---------- Stage / chrome ---------- */
+.stage{max-width:1180px;height:100dvh;margin:0 auto;padding:16px 22px 10px;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;flex:none}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.brand h1{font-family:var(--display);font-size:21px;font-weight:700;margin:0;letter-spacing:-.02em}
+.brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink-2)}
+.roleswitch{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);
+  padding:6px;border-radius:16px;box-shadow:var(--shadow);margin-left:auto}
+.roleswitch button{font-family:var(--display);font-weight:600;font-size:13.5px;color:var(--ink-2);
+  border:0;background:transparent;padding:10px 16px;border-radius:11px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;transition:background .18s,color .18s}
+.roleswitch button svg{width:17px;height:17px}
+.roleswitch button.on{background:var(--primary);color:#fff;box-shadow:0 6px 16px -8px var(--primary)}
+.hint{font-size:12.5px;color:var(--ink-3);margin:8px 2px 0;display:flex;align-items:center;gap:7px;flex:none}
+.hint svg{width:15px;height:15px;color:var(--accent)}
+
+/* ---------- Device frames ---------- */
+.devicewrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:6px 0;overflow:hidden}
+.phone{position:relative;width:392px;height:812px;transform:scale(var(--ps,1));transform-origin:center center;
+  background:#000;border-radius:54px;padding:11px;box-shadow:var(--shadow-lg);flex:none}
+.phone .screenholder{position:relative;width:100%;height:100%;background:var(--bg);
+  border-radius:44px;overflow:hidden}
+.notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:128px;height:30px;
+  background:#000;border-radius:0 0 18px 18px;z-index:60}
+.statusbar{position:absolute;top:0;left:0;right:0;height:50px;z-index:55;display:flex;
+  align-items:center;justify-content:space-between;padding:18px 30px 0;font-size:13px;
+  font-weight:600;color:var(--ink);pointer-events:none}
+.statusbar.lite{color:#fff}
+.statusbar .sicons{display:flex;gap:6px;align-items:center}
+.statusbar svg{width:16px;height:12px}
+
+.desktop{width:100%;max-width:1080px;height:min(740px,100%);background:var(--surface);border:1px solid var(--line);
+  border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg);display:flex}
+
+/* ---------- Screen system ---------- */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+.screen.active{display:flex;animation:slidein .26s cubic-bezier(.22,.61,.36,1)}
+@keyframes slidein{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{width:0}
+.pad{padding:0 20px}
+.pt-status{padding-top:54px}
+
+/* ---------- Buttons / controls ---------- */
+.btn{font-family:var(--display);font-weight:600;font-size:15.5px;border:0;cursor:pointer;
+  border-radius:999px;padding:16px 20px;width:100%;display:flex;align-items:center;
+  justify-content:center;gap:9px;transition:transform .12s,filter .18s,background .18s;min-height:52px}
+.btn:active{transform:scale(.975)}
+.btn svg{width:19px;height:19px}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 12px 26px -12px var(--primary)}
+.btn-primary:active{filter:brightness(.96)}
+.btn-accent{background:var(--accent);color:#3a2a05}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-sm{padding:11px 16px;font-size:13.5px;min-height:42px;width:auto}
+.iconbtn{width:44px;height:44px;border-radius:13px;border:1.5px solid var(--line);background:var(--surface);
+  display:grid;place-items:center;cursor:pointer;flex:none;color:var(--ink);transition:background .15s}
+.iconbtn:active{background:var(--surface-2)}
+.iconbtn svg{width:21px;height:21px}
+
+/* ---------- App header ---------- */
+.apphead{display:flex;align-items:center;gap:12px;padding:8px 20px 14px}
+.apphead.pt-status{padding-top:54px}
+.apphead h2{font-family:var(--display);font-size:21px;font-weight:700;margin:0;letter-spacing:-.02em}
+.apphead .sub{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+
+/* ---------- Cards & bits ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:12px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  padding:6px 11px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.chip svg{width:13px;height:13px}
+.chip.green{background:var(--primary-tint);color:var(--primary-dark)}
+.chip.amber{background:var(--accent-tint);color:#7a5300}
+.chip.red{background:var(--danger-tint);color:var(--danger)}
+.chip.blue{background:#E1F1FC;color:#0a5e8a}
+.filterchip{cursor:pointer;transition:background .15s,color .15s}
+.filterchip.on{background:var(--primary);color:#fff}.filterchip.on svg{color:#fff}
+.avatar{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-family:var(--display);font-weight:700;color:#fff;font-size:16px;overflow:hidden}
+.avatar svg{width:21px;height:21px}
+.logomark{display:flex}.logomark svg{width:30px;height:30px;color:#fff}
+.ico{display:inline-flex;flex:none}.ico svg{width:18px;height:18px}
+.ico-sm{display:inline-flex;flex:none;vertical-align:-3px;color:var(--primary)}.ico-sm svg{width:15px;height:15px}
+.stars{display:inline-flex;gap:1px;color:var(--accent)}
+.stars svg{width:14px;height:14px}
+.muted{color:var(--ink-2)}
+.tiny{font-size:12px}
+.label{font-size:12.5px;font-weight:600;color:var(--ink-2);margin:0 0 7px}
+.divider{height:1px;background:var(--line-2);margin:14px 0}
+.price{font-family:var(--display);font-weight:700;letter-spacing:-.02em}
+.kbd{font-variant-numeric:tabular-nums}
+
+/* inputs */
+.field{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+  padding:14px 14px;display:flex;align-items:center;gap:11px;transition:border-color .15s}
+.field:focus-within{border-color:var(--primary)}
+.field svg{width:19px;height:19px;color:var(--ink-3);flex:none}
+.field input{border:0;outline:0;font-family:var(--font);font-size:15.5px;width:100%;background:transparent;color:var(--ink)}
+.field input::placeholder{color:var(--ink-3)}
+
+/* map */
+.map{position:relative;height:100%;width:100%;background:#DCE6DD;overflow:hidden}
+.maproute{position:absolute;inset:0}
+.pin{position:absolute;transform:translate(-50%,-100%);filter:drop-shadow(0 6px 8px rgba(0,0,0,.25))}
+.carmark{position:absolute;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;
+  background:var(--ink);display:grid;place-items:center;border:3px solid #fff;
+  box-shadow:0 8px 18px -6px rgba(0,0,0,.5)}
+.carmark svg{width:19px;height:19px;color:#fff}
+
+/* bottom nav */
+.tabbar{display:flex;background:var(--surface);border-top:1px solid var(--line);
+  padding:9px 8px 26px;flex:none}
+.tabbar button{flex:1;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:4px;color:var(--ink-3);font-size:10.5px;font-weight:600;padding:6px 0;
+  font-family:var(--display);transition:color .15s}
+.tabbar button svg{width:23px;height:23px;stroke-width:2}
+.tabbar button.on{color:var(--primary)}
+
+/* sheet / float CTA */
+.dock{flex:none;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0));
+  background:linear-gradient(to top,var(--surface) 72%,transparent);border-top:1px solid var(--line-2)}
+
+/* OTP */
+.otp{display:flex;gap:10px;justify-content:space-between}
+.otp .box{flex:1;aspect-ratio:1/1.12;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:24px;cursor:pointer}
+.otp .box.fill{border-color:var(--primary);background:var(--primary-tint);color:var(--primary-dark)}
+
+/* seat stepper */
+.stepper{display:flex;align-items:center;gap:18px}
+.stepper button{width:42px;height:42px;border-radius:12px;border:1.5px solid var(--line);
+  background:var(--surface);font-size:22px;cursor:pointer;color:var(--ink);display:grid;place-items:center}
+.stepper b{font-family:var(--display);font-size:22px;min-width:24px;text-align:center}
+
+/* pay option */
+.payopt{display:flex;align-items:center;gap:13px;padding:15px;border:1.5px solid var(--line);
+  border-radius:var(--radius-sm);background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s}
+.payopt.sel{border-color:var(--primary);background:var(--primary-tint)}
+.payopt .logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;color:#fff;font-family:var(--display);font-weight:700;font-size:13px}
+.payopt .radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;margin-left:auto;display:grid;place-items:center}
+.payopt.sel .radio{border-color:var(--primary)}
+.payopt.sel .radio::after{content:"";width:11px;height:11px;border-radius:50%;background:var(--primary)}
+
+/* rating stars input */
+.ratepick{display:flex;gap:8px;justify-content:center}
+.ratepick svg{width:42px;height:42px;cursor:pointer;color:var(--line);transition:color .12s,transform .12s}
+.ratepick svg.on{color:var(--accent);transform:scale(1.04)}
+
+/* progress / success */
+.success-ring{width:96px;height:96px;border-radius:50%;background:var(--success-tint);
+  display:grid;place-items:center;margin:0 auto}
+.success-ring svg{width:48px;height:48px;color:var(--success)}
+
+/* list item */
+.li{display:flex;align-items:center;gap:13px;padding:14px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--line)}
+.li>svg{width:20px;height:20px;flex:none;color:var(--ink-3)}
+.li .price{flex:none}
+
+/* chat */
+.bubble{max-width:78%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.4}
+.bubble.them{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
+.bubble.me{background:var(--primary);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+
+/* ---------- Admin desktop ---------- */
+.admin{display:none;grid-template-columns:236px 1fr;grid-template-rows:100%;width:100%;height:100%;min-height:0}
+.admin.active{display:grid}
+.aside{background:var(--ink);color:#cfdcd6;padding:22px 16px;display:flex;flex-direction:column;gap:4px;min-height:0;overflow-y:auto}
+.aside .lg{display:flex;align-items:center;gap:10px;margin-bottom:22px;color:#fff}
+.aside .lg .mark{width:36px;height:36px;border-radius:10px;background:#fff;display:grid;place-items:center;overflow:hidden}
+.aside h3{font-family:var(--display);font-size:16px;margin:0}
+.anav{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:11px;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:#a9bcb3;transition:background .15s,color .15s}
+.anav svg{width:18px;height:18px}
+.anav:hover{background:#1d2c25;color:#fff}
+.anav.on{background:var(--primary);color:#fff}
+.amain{padding:26px 30px;overflow:auto;background:var(--surface-2);min-height:0}
+.apage{display:none}.apage.active{display:block}
+.ahead{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.ahead h2{font-family:var(--display);font-size:22px;margin:0;letter-spacing:-.02em}
+.ahead p{margin:4px 0 0;font-size:13px;color:var(--ink-2)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.kpi .v{font-family:var(--display);font-weight:700;font-size:25px;letter-spacing:-.02em;margin:8px 0 2px}
+.kpi .d{font-size:12px;display:flex;align-items:center;gap:5px}
+.kpi .d.up{color:var(--success)}.kpi .d svg{width:14px;height:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px}
+.panel h4{font-family:var(--display);font-size:15px;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--ink-2);padding:10px 12px;border-bottom:1px solid var(--line);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:13px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:8px}
+.bars .b{flex:1;background:var(--primary-tint);border-radius:8px 8px 0 0;position:relative;transition:height .4s}
+.bars .b span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:11px;font-weight:600;color:var(--ink-2)}
+.bars .b i{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:11px;color:var(--ink-3);font-style:normal}
+.bars .b.hi{background:var(--primary)}
+.toggle{width:46px;height:27px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .18s;flex:none}
+.toggle.on{background:var(--primary)}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;transition:left .18s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle.on::after{left:22px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:4px;gap:3px}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--display)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+
+.note{background:var(--accent-tint);border:1px solid #f0d9a0;color:#6b4d09;border-radius:12px;
+  padding:12px 14px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start}
+.note svg{width:17px;height:17px;flex:none;margin-top:1px}
+
+/* tablet / small desktop */
+@media (max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .admin{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .aside{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:8px;padding:12px}
+  .aside .lg{margin-bottom:0;margin-right:6px}.anav{white-space:nowrap}
+}
+/* phones: drop the bezel, let the app fill the screen like a real install */
+@media (max-width:560px){
+  .stage{padding:0;max-width:100%}
+  .topbar{padding:12px 14px;margin-bottom:0;background:rgba(246,247,245,.95);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line-2)}
+  .brand p{display:none}.brand h1{font-size:18px}
+  .roleswitch{margin-left:auto;width:auto;padding:4px;gap:3px}
+  .roleswitch button{padding:9px 11px;font-size:12px}.roleswitch button span{display:none}
+  .roleswitch button svg{width:18px;height:18px}
+  .devicewrap{padding:0}
+  .phone{width:100%;height:100%;transform:none;border-radius:0;padding:0;background:transparent;box-shadow:none}
+  .phone .screenholder{border-radius:0}
+  .notch{display:none}
+  .statusbar{display:none}
+  .pt-status,.apphead.pt-status{padding-top:14px}
+  .hint{display:none}
+  .desktop{border-radius:0;border:0;height:100%}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:12px 18px;border-radius:999px;
+  box-shadow:0 12px 30px -10px rgba(0,0,0,.5);opacity:0;pointer-events:none;z-index:9999;
+  transition:opacity .22s,transform .22s;max-width:84%;text-align:center;display:flex;align-items:center;gap:8px}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast svg{width:16px;height:16px;color:var(--green-vivid);flex:none}
+</style>
+
+<div class="stage">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark" id="brandMark"></div>
+      <div><h1><span style="color:var(--green-vivid)">Sen</span><span style="color:var(--ink)">Ride</span></h1><p>Voyagez ensemble, économisez davantage&nbsp;!</p></div>
+    </div>
+    <div class="roleswitch" id="roleswitch">
+      <button class="on" data-role="passenger" onclick="setRole('passenger')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Passenger</button>
+      <button data-role="driver" onclick="setRole('driver')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l1.2-4A2 2 0 0 1 8.1 7.6h7.8A2 2 0 0 1 17.8 9L19 13"/><path d="M4 13h16v4H4z"/><circle cx="7.5" cy="17.5" r="1.4"/><circle cx="16.5" cy="17.5" r="1.4"/></svg>Driver</button>
+      <button data-role="admin" onclick="setRole('admin')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Super Admin</button>
+    </div>
+  </div>
+
+  <div class="devicewrap">
+    <!-- ===================== PHONE (passenger + driver) ===================== -->
+    <div class="phone" id="phone">
+      <div class="notch"></div>
+      <div class="screenholder" id="holder"></div>
+    </div>
+
+    <!-- ===================== ADMIN DESKTOP ===================== -->
+    <div class="desktop" id="desktop" style="display:none"></div>
+  </div>
+
+  <div class="hint" id="hint">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+    <span>Tap any button to move through the flow. Use the switch above to jump between the Passenger app, Driver app, and Admin panel.</span>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SENRIDE ANALYTICS  →  Google Sheet
+   1. Deploy the Apps Script (senride-logger.gs) as a Web App.
+   2. Paste its /exec URL between the quotes below.
+   Until a real URL is set, events are printed to the browser console.
+   NOTE: the published CSV link (output=csv) is read-only and CANNOT
+   receive logs — you must use the Apps Script Web App /exec URL.
+   ============================================================ */
+const LOG_ENDPOINT = "https://script.google.com/macros/s/AKfycbxLe3qp14iUv_00ZCtIKpralom7DDsNRtNONgO5UPIgGMMy7GFCt9L72bEbAV2vJoy5/exec";
+const LOG_ENABLED  = true;
+
+const SESSION_ID = 'S-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7);
+function deviceInfo(){
+  const ua = navigator.userAgent;
+  const isMobile = /Mobi|Android|iPhone|iPod/i.test(ua);
+  const isTablet = /iPad|Tablet/i.test(ua) || (isMobile && Math.min(innerWidth,innerHeight) >= 600);
+  const device = isTablet ? 'Tablet' : (isMobile ? 'Mobile' : 'Desktop');
+  let os = 'Unknown';
+  if(/Windows/i.test(ua)) os='Windows'; else if(/Android/i.test(ua)) os='Android';
+  else if(/iPhone|iPad|iPod/i.test(ua)) os='iOS'; else if(/Mac OS X|Macintosh/i.test(ua)) os='macOS';
+  else if(/CrOS/i.test(ua)) os='ChromeOS'; else if(/Linux/i.test(ua)) os='Linux';
+  let browser='Unknown';
+  if(/Edg\//i.test(ua)) browser='Edge'; else if(/OPR\/|Opera/i.test(ua)) browser='Opera';
+  else if(/Chrome\//i.test(ua) && !/Edg\//i.test(ua)) browser='Chrome';
+  else if(/Firefox\//i.test(ua)) browser='Firefox';
+  else if(/Safari\//i.test(ua) && !/Chrome/i.test(ua)) browser='Safari';
+  return {device, os, browser};
+}
+function logEvent(event, detail){
+  try{
+    const d = deviceInfo(), now = new Date();
+    const payload = {
+      event: event, detail: (detail||'').toString().slice(0,140),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+      localTime: now.toString(), iso: now.toISOString(),
+      device: d.device, os: d.os, browser: d.browser,
+      viewport: innerWidth + 'x' + innerHeight,
+      role: (typeof role!=='undefined'? role : ''),
+      screen: (typeof stack!=='undefined' && stack.length ? stack[stack.length-1] : ''),
+      session: SESSION_ID, language: navigator.language || '',
+      referrer: document.referrer || 'direct'
+    };
+    sendLog(payload);
+  }catch(e){ /* never let logging break the app */ }
+}
+function sendLog(payload){
+  if(!LOG_ENABLED) return;
+  if(!LOG_ENDPOINT || LOG_ENDPOINT.indexOf('PASTE_') === 0){ console.log('[SenRide log]', payload); return; }
+  const body = JSON.stringify(payload);
+  try{
+    if(navigator.sendBeacon){
+      navigator.sendBeacon(LOG_ENDPOINT, new Blob([body], {type:'text/plain;charset=utf-8'}));
+    }else{
+      fetch(LOG_ENDPOINT, {method:'POST', mode:'no-cors', keepalive:true,
+        headers:{'Content-Type':'text/plain;charset=utf-8'}, body});
+    }
+  }catch(e){
+    try{ fetch(LOG_ENDPOINT,{method:'POST',mode:'no-cors',body}); }catch(_){}
+  }
+}
+/* capture every click anywhere on the prototype */
+document.addEventListener('click', function(e){
+  const el = e.target.closest('button,[onclick],a,.li,.payopt,.filterchip,.toggle,.card[onclick],.tabbar button,.roleswitch button');
+  let label = '';
+  if(el){ label = (el.getAttribute('aria-label') || el.innerText || el.textContent || '').replace(/\s+/g,' ').trim().slice(0,60); }
+  if(!label){ label = (e.target.textContent||'').replace(/\s+/g,' ').trim().slice(0,40) || '(background)'; }
+  logEvent('click', label);
+}, true);
+/* capture visibility + exit */
+document.addEventListener('visibilitychange', function(){ logEvent('visibility', document.visibilityState); });
+window.addEventListener('beforeunload', function(){ logEvent('session_end', 'left prototype'); });
+
+/* ---------------- tiny icon helpers ---------------- */
+const I = {
+  back:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  phone:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
+  chat:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-4-.9L3 21l1.9-5a8.4 8.4 0 0 1-.9-4 8.4 8.4 0 0 1 8.5-8 8.4 8.4 0 0 1 8.5 7.5z"/></svg>',
+  star:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 9l6.8-.6z"/></svg>',
+  pin:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.4-7-11a7 7 0 0 1 14 0c0 4.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  cal:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>',
+  seat:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 19v-3h9a3 3 0 0 0 3-3V6"/><path d="M6 16V8a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5H6z"/></svg>',
+  clock:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  car:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l1.2-4A2 2 0 0 1 8.1 7.6h7.8A2 2 0 0 1 17.8 9L19 13"/><path d="M4 13h16v4H4z"/><circle cx="7.5" cy="17.5" r="1.4"/><circle cx="16.5" cy="17.5" r="1.4"/></svg>',
+  shield:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9.2 12l2 2 3.6-4"/></svg>',
+  wallet:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7H6a2 2 0 0 1-2-2"/><circle cx="16.5" cy="13.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+  check:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>',
+  checkc:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+  bell:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+  search:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>',
+  list:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+  user:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
+  plus:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  arrowdown:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
+  send:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>',
+  arrowright:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  up:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l6-6 6 6"/></svg>'
+};
+/* ---- SenRide brand logo (vector recreation) ---- */
+function logoEmblem(px){const road="M150 54 C186 78 168 116 110 130 C52 144 34 182 70 206";return `
+<svg viewBox="5 -8 200 246" width="${px}" height="${Math.round(px*246/200)}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SenRide logo" style="display:block">
+  <defs><linearGradient id="senRoad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#43B531"/><stop offset=".44" stop-color="#2E9A28"/>
+    <stop offset=".56" stop-color="#F59A1E"/><stop offset="1" stop-color="#F2790F"/></linearGradient></defs>
+  <g fill="none" stroke-linecap="round">
+    <path d="${road}" stroke="url(#senRoad)" stroke-width="46"/>
+    <path d="${road}" stroke="#23262B" stroke-width="31"/>
+    <path d="${road}" stroke="#FFFFFF" stroke-width="3.3" stroke-dasharray="13 16" opacity=".9"/>
+  </g>
+  <!-- map drop pin · top-right of the S -->
+  <g transform="translate(150 24)">
+    <path d="M0 -22 C-12 -22 -20 -13 -20 -2 C-20 12 0 32 0 32 C0 32 20 12 20 -2 C20 -13 12 -22 0 -22 Z" fill="#F2790F"/>
+    <circle cx="0" cy="-4" r="7" fill="#fff"/>
+  </g>
+  <!-- taxi car (front view) · bottom-left of the S -->
+  <g transform="translate(24 166)">
+    <rect x="4" y="24" width="84" height="40" rx="16" fill="#16191D"/>
+    <path d="M20 26 Q22 4 46 4 Q70 4 72 26 Z" fill="#16191D"/>
+    <path d="M28 24 Q30 11 46 11 Q62 11 64 24 Z" fill="#AEBDCB"/>
+    <rect x="10" y="40" width="18" height="11" rx="5" fill="#FFE08A"/>
+    <rect x="64" y="40" width="18" height="11" rx="5" fill="#FFE08A"/>
+    <rect x="37" y="41" width="18" height="8" rx="3" fill="#0e1013"/>
+    <rect x="8" y="55" width="76" height="9" rx="4" fill="#2c2f34"/>
+  </g>
+</svg>`;}
+function logoWord(size){return `<div style="font-family:var(--display);font-weight:800;letter-spacing:-.02em;font-size:${size}px;line-height:1"><span style="color:var(--green-vivid)">Sen</span><span style="color:var(--ink)">Ride</span></div>`;}
+function logoFull(o){o=o||{};const emblem=o.emblem||124,word=o.word||42,tag=o.tagline!==false;
+  return `<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+    ${logoEmblem(emblem)}${logoWord(word)}
+    ${tag?`<div style="font-family:var(--display);font-weight:600;color:var(--green-vivid);font-size:${Math.round(word*.34)}px;line-height:1.3;max-width:300px">Voyagez ensemble,<br>économisez davantage&nbsp;!</div>`:''}
+  </div>`;}
+
+function stars(n){let s='';for(let i=0;i<5;i++)s+=`<span style="color:${i<Math.round(n)?'var(--accent)':'var(--line)'}">${I.star}</span>`;return `<span class="stars">${s}</span>`;}
+function statusbar(lite){return `<div class="statusbar ${lite?'lite':''}"><span class="kbd">9:41</span><span class="sicons"><svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="4" y="4.5" width="3" height="7.5" rx="1"/><rect x="8" y="2" width="3" height="10" rx="1"/><rect x="12" y="0" width="3" height="12" rx="1" opacity=".35"/></svg><svg viewBox="0 0 18 12" fill="currentColor"><path d="M9 2.5c2.2 0 4.2.8 5.7 2.2l-1 1A6.7 6.7 0 0 0 9 4a6.7 6.7 0 0 0-4.7 1.7l-1-1A8.2 8.2 0 0 1 9 2.5zM9 6c1.2 0 2.3.4 3.1 1.2l-1 1A2.9 2.9 0 0 0 9 7.3c-.8 0-1.5.3-2.1.8l-1-1A4.4 4.4 0 0 1 9 6zm0 3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/></svg><svg viewBox="0 0 26 12" fill="none"><rect x="1" y="1" width="21" height="10" rx="2.5" stroke="currentColor" stroke-width="1"/><rect x="3" y="3" width="15" height="6" rx="1" fill="currentColor"/><rect x="23" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span></div>`;}
+
+/* stylized map background */
+function mapBg(opts={}){
+  const pin=(x,y,c,lbl)=>`<g transform="translate(${x},${y})"><path d="M0 0c0-3.8 3-7 7-7s7 3.2 7 7c0 6-7 13-7 13S0 6 0 0z" transform="translate(-7,-13)" fill="${c}"/><circle cx="0" cy="-9" r="3.4" fill="#fff"/></g>`;
+  return `<div class="map"><svg class="maproute" viewBox="0 0 392 812" preserveAspectRatio="xMidYMid slice">
+    <rect width="392" height="812" fill="#DCE6DD"/>
+    <g stroke="#CBD8CC" stroke-width="14"><path d="M-20 180 H420"/><path d="M-20 470 H420"/><path d="M90 -20 V840"/><path d="M300 -20 V840"/></g>
+    <g stroke="#EAF0EA" stroke-width="5"><path d="M-20 300 H420"/><path d="M-20 620 H420"/><path d="M190 -20 V840"/></g>
+    <g fill="#CFDDCF"><rect x="120" y="210" width="60" height="60" rx="4"/><rect x="210" y="210" width="70" height="60" rx="4"/><rect x="120" y="500" width="60" height="80" rx="4"/><rect x="220" y="500" width="60" height="80" rx="4"/><rect x="20" y="210" width="50" height="60" rx="4"/></g>
+    <path d="M100 640 C 140 540, 130 420, 196 360 S 270 230, 270 150" fill="none" stroke="#1E8A2A" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+    ${opts.from!==false?pin(100,640,'#13201B'):''}
+    ${opts.to!==false?pin(270,150,'#1E8A2A'):''}
+  </svg></div>`;
+}
+
+/* ---------------- screen definitions ---------------- */
+const P = {}; // passenger
+const D = {}; // driver
+let stack=[]; let role='passenger';
+
+/* ---- Passenger: onboarding ---- */
+P['p-login']=()=>`
+${statusbar()}
+<div class="scroll" style="display:flex;flex-direction:column;min-height:100%">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:56px 24px 18px;
+    background:radial-gradient(125% 62% at 50% 4%, var(--primary-tint) 0%, transparent 68%)">
+    ${logoFull({emblem:132,word:46})}
+  </div>
+  <div class="pad" style="padding-bottom:26px">
+    <div class="card" style="padding:20px">
+      <h2 style="font-family:var(--display);font-size:20px;margin:0 0 4px">Log in or sign up</h2>
+      <p class="tiny muted" style="margin:0 0 16px">Enter your phone number to start riding</p>
+      <p class="label">Phone number</p>
+      <div class="field">
+        <span style="font-family:var(--display);font-weight:700;color:var(--ink-2);font-size:15px">🇸🇳 +221</span>
+        <input value="77 123 45 67" inputmode="numeric"/>
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn btn-primary" onclick="nav('p-verify')">Continue ${I.arrowright}</button>
+      <div style="height:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;color:var(--ink-3)"><span style="flex:1;height:1px;background:var(--line)"></span><span class="tiny">or</span><span style="flex:1;height:1px;background:var(--line)"></span></div>
+      <div style="height:16px"></div>
+      <button class="btn btn-ghost" onclick="setRole('driver')">${I.car} Continue as a driver</button>
+    </div>
+    <p class="tiny muted" style="text-align:center;margin:14px 12px 0;line-height:1.55">
+      By continuing you agree to SenRide&rsquo;s <b style="color:var(--primary)">Terms</b> &amp; <b style="color:var(--primary)">Privacy Policy</b>. We&rsquo;ll text an SMS code to verify your number.</p>
+  </div>
+</div>`;
+
+P['p-verify']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2>Verify your number</h2><div class="sub">Code sent to +221 77 123 45 67</div></div></div>
+<div class="scroll pad">
+  <div style="height:14px"></div>
+  <div class="otp" id="otp">${[...'2 0 5 8'.split(' '),'',''].map((d,i)=>`<div class="box ${d?'fill':''}">${d}</div>`).join('')}</div>
+  <div style="height:18px"></div>
+  <div class="between"><span class="tiny muted">Didn&rsquo;t get it?</span><button class="btn btn-sm btn-ghost" onclick="fillOtp()">Resend in 0:24</button></div>
+  <div style="height:20px"></div>
+  <div class="note">${I.shield}<span>Token-based session (JWT) keeps you securely signed in across the app.</span></div>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('p-role')">Verify &amp; continue ${I.check}</button></div>`;
+
+P['p-role']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div><h2>How will you ride?</h2><div class="sub">You can switch roles anytime</div></div></div>
+<div class="scroll pad">
+  <div style="height:8px"></div>
+  <button class="card" style="padding:18px;width:100%;text-align:left;border:1.5px solid var(--primary);background:var(--primary-tint);cursor:pointer;display:flex;gap:14px;align-items:center" onclick="setRole('passenger')">
+    <div class="avatar" style="background:linear-gradient(150deg,var(--primary),var(--primary-dark));width:50px;height:50px;flex:none">${I.user}</div>
+    <div style="flex:1"><div style="font-family:var(--display);font-weight:700;font-size:16px">I&rsquo;m a Passenger</div><div class="tiny muted" style="margin-top:3px">Find affordable rides going your way</div></div>
+    <span class="ico" style="color:var(--ink-3)">${I.arrowright}</span>
+  </button>
+  <div style="height:14px"></div>
+  <button class="card" style="padding:18px;width:100%;text-align:left;cursor:pointer;display:flex;gap:14px;align-items:center" onclick="setRole('driver')">
+    <div class="avatar" style="background:var(--ink);width:50px;height:50px;flex:none">${I.car}</div>
+    <div style="flex:1"><div style="font-family:var(--display);font-weight:700;font-size:16px">I&rsquo;m a Driver</div><div class="tiny muted" style="margin-top:3px">Offer empty seats &amp; earn on trips you already make</div></div>
+    <span class="ico" style="color:var(--ink-3)">${I.arrowright}</span>
+  </button>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('p-home')">Continue as Passenger ${I.arrowright}</button></div>`;
+
+/* ---- Passenger: home/search ---- */
+P['p-home']=()=>`
+<div class="scroll">
+  <div style="position:relative;height:230px">${mapBg({from:false})}
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,92,72,.55),transparent 45%)"></div>
+    ${statusbar(true)}
+    <div style="position:absolute;top:54px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center">
+      <div style="color:#fff"><div class="tiny" style="opacity:.85">Good morning,</div><div style="font-family:var(--display);font-weight:700;font-size:18px">Awa Diop</div></div>
+      <button class="iconbtn" style="background:rgba(255,255,255,.92)" onclick="nav('p-activity')">${I.bell}</button>
+    </div>
+  </div>
+  <div class="pad" style="margin-top:-42px;position:relative">
+    <div class="card" style="padding:18px">
+      <p class="label">Where are you going?</p>
+      <div class="field" style="margin-bottom:10px"><span style="color:var(--ink)">${I.pin}</span><input value="Dakar — Plateau" /></div>
+      <div class="field" style="margin-bottom:10px"><span style="color:var(--primary)">${I.pin}</span><input value="Thiès — Centre" /></div>
+      <div class="row" style="gap:10px">
+        <div class="field" style="flex:1"><span>${I.cal}</span><input value="Today" style="min-width:0"/></div>
+        <div class="field" style="flex:1"><span>${I.seat}</span><input value="1 seat" style="min-width:0"/></div>
+      </div>
+      <div style="height:14px"></div>
+      <button class="btn btn-primary" onclick="nav('p-results')">${I.search} Search rides</button>
+    </div>
+    <div style="height:20px"></div>
+    <div class="between"><div style="font-family:var(--display);font-weight:700;font-size:16px">Popular routes</div><span class="tiny" style="color:var(--primary);font-weight:600;cursor:pointer" onclick="nav('p-results')">See all</span></div>
+    <div style="height:12px"></div>
+    ${[['Dakar','Saint-Louis','2 500'],['Dakar','Mbour','1 800'],['Thiès','Touba','2 200']].map(r=>`
+      <div class="li" style="margin-bottom:10px;cursor:pointer" onclick="nav('p-results')">
+        <div class="avatar" style="width:40px;height:40px;background:var(--surface-2);color:var(--primary)">${I.car}</div>
+        <div style="flex:1"><div style="font-weight:600;font-size:14px">${r[0]} → ${r[1]}</div><div class="tiny muted">From ${r[2]} FCFA · daily</div></div>
+        ${I.arrowright}
+      </div>`).join('')}
+    <div style="height:14px"></div>
+  </div>
+</div>
+${tabbar('home')}`;
+
+/* ---- Passenger: results ---- */
+const TRIPS=[
+  {n:'Moussa Sane',i:'MS',c:'#1E8A2A',r:4.9,t:'07:30',a:'09:10',seats:3,price:'2 500',car:'Toyota Corolla · Grey',stops:'Rufisque'},
+  {n:'Fatou Ndiaye',i:'FN',c:'#C2410C',r:4.8,t:'08:00',a:'09:35',seats:2,price:'2 300',car:'Hyundai i10 · White',stops:'Direct'},
+  {n:'Ibrahima Ba',i:'IB',c:'#7C3AED',r:4.7,t:'09:15',a:'10:50',seats:4,price:'2 200',car:'Kia Picanto · Blue',stops:'Sébikotane'}
+];
+P['p-results']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button>
+  <div style="flex:1"><h2 style="font-size:18px">Dakar → Thiès</h2><div class="sub">Today · 1 seat · ${TRIPS.length} rides found</div></div>
+  <button class="iconbtn" onclick="nav('p-results')">${I.list}</button></div>
+<div class="scroll pad">
+  <div style="display:flex;gap:8px;overflow:auto;padding-bottom:4px">
+    <span class="chip green filterchip on" onclick="sortResults('Showing verified drivers only',this)">${I.check} Verified only</span><span class="chip filterchip" onclick="sortResults('Sorted by earliest departure',this)">Earliest</span><span class="chip filterchip" onclick="sortResults('Sorted by lowest price',this)">Lowest price</span><span class="chip filterchip" onclick="sortResults('Filtered to 4★ and above',this)">${stars(4)} 4+</span>
+  </div>
+  <div style="height:14px"></div>
+  ${TRIPS.map((t,idx)=>`
+  <div class="card" style="padding:16px;margin-bottom:12px;cursor:pointer" onclick="nav('p-trip')">
+    <div class="row">
+      <div class="avatar" style="background:${t.c}">${t.i}</div>
+      <div style="flex:1">
+        <div class="between"><div style="font-family:var(--display);font-weight:700;font-size:15px">${t.n} <span class="chip green" style="vertical-align:middle">${I.shield}</span></div><div class="price" style="font-size:16px;color:var(--primary)">${t.price}<span class="tiny muted" style="font-weight:500"> FCFA</span></div></div>
+        <div class="tiny muted" style="margin-top:3px">${stars(t.r)} ${t.r} · ${t.car}</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="between">
+      <div class="row" style="gap:18px">
+        <div><div style="font-family:var(--display);font-weight:700">${t.t}</div><div class="tiny muted">Plateau</div></div>
+        <div class="ico" style="color:var(--ink-3)">${I.arrowright}</div>
+        <div><div style="font-family:var(--display);font-weight:700">${t.a}</div><div class="tiny muted">Thiès</div></div>
+      </div>
+      <span class="chip ${t.seats<=2?'amber':'green'}">${I.seat} ${t.seats} left</span>
+    </div>
+  </div>`).join('')}
+</div>
+${tabbar('home')}`;
+
+/* ---- Passenger: trip detail ---- */
+P['p-trip']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Ride details</h2></div></div>
+<div class="scroll pad">
+  <div class="card" style="padding:18px">
+    <div class="row"><div class="avatar" style="background:#1E8A2A">MS</div>
+      <div style="flex:1"><div style="font-family:var(--display);font-weight:700;font-size:16px">Moussa Sane</div><div class="tiny muted">${stars(4.9)} 4.9 · 312 trips · Joined 2023</div></div>
+      <div style="display:flex;gap:8px"><button class="iconbtn" onclick="nav('p-chat')">${I.chat}</button><button class="iconbtn" onclick="toast('Calling via masked number…')">${I.phone}</button></div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:14px"><span class="chip green">${I.shield} ID verified</span><span class="chip">${I.car} Corolla · Grey</span></div>
+  </div>
+  <div style="height:14px"></div>
+  <div class="card" style="padding:18px">
+    <div style="display:flex;gap:14px">
+      <div style="display:flex;flex-direction:column;align-items:center;padding-top:5px">
+        <span style="width:11px;height:11px;border-radius:50%;background:var(--ink)"></span>
+        <span style="flex:1;width:2px;background:var(--line);margin:4px 0"></span>
+        <span style="width:11px;height:11px;border-radius:50%;background:var(--primary)"></span>
+      </div>
+      <div style="flex:1">
+        <div style="margin-bottom:18px"><div style="font-weight:600">Dakar — Plateau</div><div class="tiny muted">Pickup · 07:30 · Place de l&rsquo;Indépendance</div></div>
+        <div class="tiny" style="color:var(--accent);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:6px">${I.pin} Stop: Rufisque (08:05)</div>
+        <div><div style="font-weight:600">Thiès — Centre</div><div class="tiny muted">Drop-off · 09:10 · Gare routière</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="height:14px"></div>
+  <p class="label">Seats to book</p>
+  <div class="card" style="padding:16px"><div class="between"><div class="tiny muted">3 seats available</div>
+    <div class="stepper"><button onclick="seat(-1)">−</button><b id="seatN">1</b><button onclick="seat(1)">+</button></div></div></div>
+</div>
+<div class="dock">
+  <div class="between" style="margin-bottom:10px"><span class="muted tiny">Total · <span id="seatLbl">1 seat</span></span><span class="price" style="font-size:20px">2 500<span class="tiny muted" style="font-weight:500"> FCFA</span></span></div>
+  <button class="btn btn-primary" onclick="nav('p-pay')">Reserve &amp; pay ${I.arrowright}</button>
+</div>`;
+
+/* ---- Passenger: payment ---- */
+P['p-pay']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Secure payment</h2><div class="sub">Funds held in escrow until trip ends</div></div></div>
+<div class="scroll pad">
+  <div style="height:6px"></div>
+  <p class="label">Choose payment method</p>
+  <div class="payopt sel" id="pay-wave" onclick="pickPay('wave')">
+    <div class="logo" style="background:var(--wave)">Wave</div>
+    <div><div style="font-weight:600">Wave</div><div class="tiny muted">**** 4567 · instant</div></div>
+    <div class="radio"></div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="payopt" id="pay-om" onclick="pickPay('om')">
+    <div class="logo" style="background:var(--om)">OM</div>
+    <div><div style="font-weight:600">Orange Money</div><div class="tiny muted">**** 8821 · instant</div></div>
+    <div class="radio"></div>
+  </div>
+  <div style="height:18px"></div>
+  <div class="card" style="padding:16px">
+    <div class="between" style="margin-bottom:9px"><span class="muted tiny">Seat fare × 1</span><span class="kbd">2 500 FCFA</span></div>
+    <div class="between" style="margin-bottom:9px"><span class="muted tiny">Service fee (incl.)</span><span class="kbd muted">275 FCFA</span></div>
+    <div class="divider"></div>
+    <div class="between"><span style="font-weight:600">Total</span><span class="price" style="font-size:18px">2 500 FCFA</span></div>
+  </div>
+  <div style="height:14px"></div>
+  <div class="note">${I.shield}<span>Senride holds your payment safely. The driver is paid only after your trip is completed.</span></div>
+</div>
+<div class="dock"><button class="btn btn-primary" id="payBtn" onclick="payNow()">Pay 2 500 FCFA with Wave</button></div>`;
+
+P['p-confirm']=()=>`
+${statusbar()}
+<div class="scroll pad pt-status" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+  <div class="success-ring">${I.checkc}</div>
+  <div style="height:18px"></div>
+  <h2 style="font-family:var(--display);font-size:23px;margin:0">Booking confirmed!</h2>
+  <p class="muted" style="margin:8px 0 0;font-size:14px">Your seat with Moussa is reserved. Payment is held in escrow.</p>
+  <div style="height:22px"></div>
+  <div class="card" style="padding:18px;text-align:left">
+    <div class="between"><span class="muted tiny">Status</span><span class="chip green">${I.check} Confirmed</span></div>
+    <div class="divider"></div>
+    <div class="between" style="margin-bottom:8px"><span class="muted tiny">Route</span><span style="font-weight:600;font-size:13px">Plateau → Thiès</span></div>
+    <div class="between" style="margin-bottom:8px"><span class="muted tiny">Departure</span><span style="font-weight:600;font-size:13px">Today · 07:30</span></div>
+    <div class="between"><span class="muted tiny">Booking ID</span><span class="kbd muted tiny">#SR-90412</span></div>
+  </div>
+  <div style="height:12px"></div>
+  <div class="note" style="text-align:left">${I.chat}<span>An encrypted chat with Moussa is now unlocked. It auto-archives 24h after the trip.</span></div>
+</div>
+<div class="dock" style="display:flex;gap:10px">
+  <button class="btn btn-ghost" style="flex:1" onclick="nav('p-chat')">${I.chat} Chat</button>
+  <button class="btn btn-primary" style="flex:1.4" onclick="nav('p-track')">Track ride ${I.arrowright}</button>
+</div>`;
+
+/* ---- Passenger: live tracking ---- */
+P['p-track']=()=>`
+<div class="screen-map" style="position:relative;flex:1">
+  ${mapBg()}${statusbar(true)}
+  <div class="carmark" style="left:48%;top:55%">${I.car}</div>
+  <button class="iconbtn" style="position:absolute;top:54px;left:20px;background:#fff" onclick="nav('p-home')">${I.back}</button>
+  <div class="chip green" style="position:absolute;top:60px;left:50%;transform:translateX(-50%);box-shadow:var(--shadow)">${I.clock} Arriving in 4 min</div>
+</div>
+<div class="card" style="border-radius:24px 24px 0 0;padding:20px;border-bottom:0">
+  <div class="row"><div class="avatar" style="background:#1E8A2A">MS</div>
+    <div style="flex:1"><div style="font-family:var(--display);font-weight:700">Moussa is on the way</div><div class="tiny muted">${stars(4.9)} Grey Corolla · DK-2841-A</div></div>
+    <div style="display:flex;gap:8px"><button class="iconbtn" onclick="nav('p-chat')">${I.chat}</button><button class="iconbtn" onclick="toast('Calling via masked number…')">${I.phone}</button></div>
+  </div>
+  <div class="divider"></div>
+  <div class="between"><span class="chip blue">${I.shield} Masked number · privacy on</span>
+  <button class="btn btn-sm btn-ghost" onclick="nav('p-rate')">End trip</button></div>
+</div>`;
+
+/* ---- Passenger: messages inbox ---- */
+P['p-messages']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div style="flex:1"><h2>Messages</h2><div class="sub">Chats unlock when a ride is booked</div></div><button class="iconbtn" onclick="toast('Search messages')">${I.search}</button></div>
+<div class="scroll pad">
+  ${[['Moussa Sane','MS','#1E8A2A','I\'ll be at Place de l\'Indépendance…','09:41',2,'p-chat'],
+     ['Fatou Ndiaye','FN','#C2410C','Merci beaucoup 🙏','08:20',0,'p-chat'],
+     ['Ibrahima Ba','IB','#7C3AED','Ok, à demain !','Hier',0,'p-chat'],
+     ['Support SenRide','SR','var(--primary-dark)','Nous sommes là pour vous','Hier',0,'p-chat']].map(c=>`
+    <div class="li" style="margin-bottom:10px;cursor:pointer" onclick="nav('${c[6]}')">
+      <div class="avatar" style="width:46px;height:46px;background:${c[2]}">${c[1]}</div>
+      <div style="flex:1;min-width:0">
+        <div class="between"><div style="font-weight:600;font-size:14px;font-family:var(--display)">${c[0]}</div><div class="tiny muted">${c[4]}</div></div>
+        <div class="between"><div class="tiny muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${c[3]}</div>${c[5]?`<span class="chip green" style="padding:2px 8px;min-width:20px;justify-content:center">${c[5]}</span>`:''}</div>
+      </div>
+    </div>`).join('')}
+  <div class="note" style="margin-top:6px">${I.chat}<span>Conversations auto-archive 24h after the trip ends to protect privacy.</span></div>
+</div>
+${tabbar('chat')}`;
+
+/* ---- Passenger: chat ---- */
+P['p-chat']=()=>`
+${statusbar()}
+<div class="apphead pt-status" style="border-bottom:1px solid var(--line-2);padding-bottom:12px"><button class="iconbtn" onclick="back()">${I.back}</button>
+  <div class="avatar" style="background:#1E8A2A;width:40px;height:40px">MS</div>
+  <div style="flex:1"><div style="font-weight:700;font-size:15px;font-family:var(--display)">Moussa Sane</div><div class="tiny" style="color:var(--success)">● Online</div></div>
+  <button class="iconbtn" onclick="toast('Calling via masked number…')">${I.phone}</button></div>
+<div class="scroll pad" id="chatBox" style="display:flex;flex-direction:column;gap:10px;padding-top:14px">
+  <div style="text-align:center" class="tiny muted">Chat unlocked · auto-archives 24h after trip</div>
+  <div class="bubble them">Bonjour Awa 👋 I&rsquo;ll be at Place de l&rsquo;Indépendance at 7:30.</div>
+  <div class="bubble me">Parfait, merci! I&rsquo;ll wait near the bank entrance.</div>
+  <div class="bubble them">Great, grey Corolla DK-2841-A. À bientôt!</div>
+  <div class="bubble me">👍 See you soon</div>
+</div>
+<div class="dock" style="border-top:1px solid var(--line-2)"><div class="field" style="border-radius:999px"><input id="msgInput" placeholder="Message Moussa…" onkeydown="if(event.key==='Enter')sendMsg()" /><button class="iconbtn" style="border:0;width:38px;height:38px;background:var(--primary);color:#fff" onclick="sendMsg()">${I.send}</button></div></div>`;
+
+/* ---- Passenger: rate ---- */
+P['p-rate']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div><h2>Rate your trip</h2><div class="sub">Trip to Thiès · completed</div></div></div>
+<div class="scroll pad" style="text-align:center">
+  <div style="height:10px"></div>
+  <div class="avatar" style="background:#1E8A2A;width:72px;height:72px;margin:0 auto;font-size:24px">MS</div>
+  <div style="font-family:var(--display);font-weight:700;font-size:18px;margin-top:12px">How was Moussa?</div>
+  <div class="tiny muted">Your feedback keeps the community safe</div>
+  <div style="height:20px"></div>
+  <div class="ratepick" id="rate">${[1,2,3,4,5].map(i=>`<span data-v="${i}" onclick="setRate(${i})">${I.star}</span>`).join('')}</div>
+  <div style="height:20px"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+    <span class="chip filterchip" onclick="this.classList.toggle('on')">On time</span><span class="chip filterchip" onclick="this.classList.toggle('on')">Safe driver</span><span class="chip filterchip" onclick="this.classList.toggle('on')">Friendly</span><span class="chip filterchip" onclick="this.classList.toggle('on')">Clean car</span>
+  </div>
+  <div style="height:16px"></div>
+  <div class="field" style="border-radius:16px"><input placeholder="Add a note (optional)…"/></div>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('p-done')">Submit rating ${I.check}</button></div>`;
+
+P['p-done']=()=>`
+${statusbar()}
+<div class="scroll pad pt-status" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+  <div class="success-ring">${I.checkc}</div>
+  <h2 style="font-family:var(--display);margin:18px 0 6px">Thanks for riding!</h2>
+  <p class="muted" style="margin:0;font-size:14px">Payment released to driver · platform fee retained securely.</p>
+  <div style="height:24px"></div>
+  <button class="btn btn-primary" onclick="nav('p-home')">Back to home</button>
+  <div style="height:10px"></div>
+  <button class="btn btn-ghost" onclick="nav('p-activity')">View receipt</button>
+</div>`;
+
+/* ---- Passenger: activity ---- */
+P['p-activity']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div><h2>Your trips</h2><div class="sub">Receipts &amp; ride history</div></div></div>
+<div class="scroll pad">
+  <div class="seg" style="margin-bottom:14px"><button class="on">Upcoming</button><button>Completed</button></div>
+  <div class="card" style="padding:16px;margin-bottom:12px">
+    <div class="between"><span class="chip green">${I.check} Confirmed</span><span class="tiny muted">Today · 07:30</span></div>
+    <div class="divider"></div>
+    <div class="row"><div class="avatar" style="background:#1E8A2A;width:42px;height:42px">MS</div>
+    <div style="flex:1"><div style="font-weight:600;font-size:14px">Plateau → Thiès</div><div class="tiny muted">Moussa Sane · 1 seat</div></div>
+    <div class="price" style="color:var(--primary)">2 500</div></div>
+  </div>
+  ${[['Dakar → Mbour','Fatou N.','1 800','Mar 12'],['Thiès → Touba','Ibrahima B.','2 200','Mar 03']].map(r=>`
+  <div class="card" style="padding:16px;margin-bottom:12px;opacity:.92">
+    <div class="between"><span class="chip">Completed</span><span class="tiny muted">${r[3]}</span></div>
+    <div class="divider"></div>
+    <div class="row"><div class="avatar" style="background:var(--surface-2);color:var(--ink-2);width:42px;height:42px">${r[1].slice(0,1)}</div>
+    <div style="flex:1"><div style="font-weight:600;font-size:14px">${r[0]}</div><div class="tiny muted">${r[1]} · paid</div></div>
+    <div class="price muted">${r[2]}</div></div>
+  </div>`).join('')}
+</div>
+${tabbar('trips')}`;
+
+P['p-profile']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div><h2>Profile</h2></div></div>
+<div class="scroll pad" style="text-align:center">
+  <div class="avatar" style="background:linear-gradient(150deg,#1E8A2A,#14661C);width:84px;height:84px;margin:8px auto 0;font-size:30px">AD</div>
+  <div style="font-family:var(--display);font-weight:700;font-size:19px;margin-top:12px">Awa Diop</div>
+  <div class="tiny muted">${stars(4.9)} 4.9 · +221 77 ••• 67 <span class="ico-sm">${I.shield}</span></div>
+  <div style="height:20px"></div>
+  <div style="text-align:left">
+    ${[['wallet','Payment methods','Wave · Orange Money','Wave & Orange Money linked'],['shield','Identity &amp; safety','Verified','Identity verified ✓'],['bell','Notifications','On','Notification settings'],['star','My ratings','38 reviews','You have 38 reviews · 4.9★']].map(r=>`
+    <div class="li" style="margin-bottom:10px;cursor:pointer" onclick="toast('${r[3]}')"><div class="avatar" style="width:38px;height:38px;background:var(--surface-2);color:var(--primary)">${I[r[0]]}</div>
+    <div style="flex:1"><div style="font-weight:600;font-size:14px">${r[1]}</div><div class="tiny muted">${r[2]}</div></div>${I.arrowright}</div>`).join('')}
+  </div>
+  <div style="height:14px"></div>
+  <button class="btn btn-ghost" onclick="toast('Logged out');setTimeout(()=>nav('p-login'),600)" style="color:var(--danger);margin-bottom:10px">Log out</button>
+  <button class="btn btn-ghost" onclick="setRole('driver')">${I.car} Switch to Driver mode</button>
+</div>
+${tabbar('profile')}`;
+
+function tabbar(active){
+  const items=[['home','Search',I.search,'p-home'],['trips','Trips',I.list,'p-activity'],['chat','Chat',I.chat,'p-messages'],['profile','Profile',I.user,'p-profile']];
+  return `<div class="tabbar">${items.map(it=>`<button class="${active===it[0]?'on':''}" onclick="nav('${it[3]}')">${it[2]}<span>${it[1]}</span></button>`).join('')}</div>`;
+}
+function dtabbar(active){
+  const items=[['home','Home',I.car,'d-home'],['trips','Requests',I.bell,'d-requests'],['wallet','Earnings',I.wallet,'d-wallet'],['profile','Profile',I.user,'d-profile']];
+  return `<div class="tabbar">${items.map(it=>`<button class="${active===it[0]?'on':''}" onclick="nav('${it[3]}')">${it[2]}<span>${it[1]}</span></button>`).join('')}</div>`;
+}
+
+/* ===================== DRIVER ===================== */
+D['d-home']=()=>`
+${statusbar()}
+<div class="scroll">
+  <div class="pad pt-status">
+    <div class="between" style="padding:6px 0 14px">
+      <div><div class="tiny muted">Driver mode</div><div style="font-family:var(--display);font-weight:700;font-size:18px">Salut, Moussa</div></div>
+      <button class="iconbtn" onclick="nav('d-requests')">${I.bell}</button>
+    </div>
+    <div class="card" style="padding:20px;background:linear-gradient(150deg,#13201B,#14661C);border:0;color:#fff">
+      <div class="tiny" style="opacity:.8">Withdrawable balance</div>
+      <div class="price" style="font-size:30px;margin:6px 0 14px">84 200 <span style="font-size:15px;opacity:.8">FCFA</span></div>
+      <div class="between"><div class="row" style="gap:18px">
+        <div><div style="font-family:var(--display);font-weight:700">312</div><div class="tiny" style="opacity:.75">trips</div></div>
+        <div><div style="font-family:var(--display);font-weight:700">4.9</div><div class="tiny" style="opacity:.75">rating</div></div>
+      </div><button class="btn btn-accent btn-sm" onclick="nav('d-wallet')">${I.wallet} Cash out</button></div>
+    </div>
+    <div style="height:16px"></div>
+    <button class="btn btn-primary" onclick="nav('d-publish')">${I.plus} Publish a trip</button>
+    <div style="height:6px"></div>
+    <div class="note" style="margin-top:12px">${I.shield}<span>Your KYC is verified. <b style="cursor:pointer;text-decoration:underline" onclick="nav('d-kyc')">View documents</b></span></div>
+    <div style="height:18px"></div>
+    <div class="between"><div style="font-family:var(--display);font-weight:700;font-size:16px">Your published trips</div><span class="chip green">2 active</span></div>
+    <div style="height:12px"></div>
+    <div class="card" style="padding:16px;margin-bottom:12px">
+      <div class="between"><div style="font-weight:600">Plateau → Thiès</div><span class="chip amber">2 / 3 booked</span></div>
+      <div class="tiny muted" style="margin:6px 0 12px">Today · 07:30 · 2 500 FCFA / seat</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="nav('d-requests')">Manage bookings</button>
+    </div>
+    <div class="card" style="padding:16px">
+      <div class="between"><div style="font-weight:600">Thiès → Dakar</div><span class="chip green">4 seats open</span></div>
+      <div class="tiny muted" style="margin:6px 0 12px">Tomorrow · 18:00 · 2 500 FCFA / seat</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="nav('d-requests')">Manage bookings</button>
+    </div>
+    <div style="height:14px"></div>
+  </div>
+</div>
+${dtabbar('home')}`;
+
+D['d-kyc']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Verification</h2><div class="sub">Required to publish trips</div></div></div>
+<div class="scroll pad">
+  <div class="card" style="padding:16px;background:var(--success-tint);border-color:#bfe6cf;margin-bottom:14px">
+    <div class="row"><div class="avatar" style="width:40px;height:40px;background:var(--success)">${I.check}</div>
+    <div><div style="font-weight:700;font-family:var(--display)">You&rsquo;re verified</div><div class="tiny" style="color:#0c6b3c">Approved by Senride · 14 Feb 2026</div></div></div>
+  </div>
+  ${[['Driver&rsquo;s license','Approved','green',I.check],['National ID card','Approved','green',I.check],['Vehicle registration','Approved','green',I.check],['Profile selfie','Approved','green',I.check]].map(d=>`
+  <div class="li" style="margin-bottom:10px"><div class="avatar" style="width:40px;height:40px;background:var(--surface-2);color:var(--primary)">${I.shield}</div>
+  <div style="flex:1"><div style="font-weight:600;font-size:14px">${d[0]}</div><div class="tiny muted">Uploaded · reviewed by admin</div></div>
+  <span class="chip ${d[2]}">${d[3]} ${d[1]}</span></div>`).join('')}
+  <div style="height:14px"></div>
+  <div class="note">${I.shield}<span>Documents are stored encrypted in secure cloud object storage and reviewed at the Admin KYC desk.</span></div>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('d-publish')">Continue ${I.arrowright}</button></div>`;
+
+D['d-publish']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Publish a trip</h2></div></div>
+<div class="scroll pad">
+  <p class="label">Route</p>
+  <div class="field" style="margin-bottom:10px"><span style="color:var(--ink)">${I.pin}</span><input value="Dakar — Plateau"/></div>
+  <div id="stopsHost"></div>
+  <div class="field" style="margin:10px 0"><span style="color:var(--primary)">${I.pin}</span><input value="Thiès — Centre"/></div>
+  <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:flex-start;color:var(--primary)" onclick="addStop()">${I.plus} Add intermediate stop</button>
+  <div style="height:16px"></div>
+  <div class="row" style="gap:10px"><div style="flex:1"><p class="label">Date</p><div class="field"><span>${I.cal}</span><input value="Today" style="min-width:0"/></div></div>
+  <div style="flex:1"><p class="label">Time</p><div class="field"><span>${I.clock}</span><input value="07:30" style="min-width:0"/></div></div></div>
+  <div style="height:16px"></div>
+  <p class="label">Available seats</p>
+  <div class="card" style="padding:16px;margin-bottom:16px"><div class="between"><span class="tiny muted">Empty seats to offer</span>
+    <div class="stepper"><button onclick="seat(-1)">−</button><b id="seatN">3</b><button onclick="seat(1)">+</button></div></div></div>
+  <p class="label">Price per seat</p>
+  <div class="field" style="margin-bottom:8px"><span style="font-family:var(--display);font-weight:700;color:var(--ink)">FCFA</span><input value="2 500"/></div>
+  <div class="note">${I.up}<span>Suggested: <b>2 300–2 700 FCFA</b> based on ~70 km average distance.</span></div>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('d-published')">Publish trip ${I.check}</button></div>`;
+
+D['d-published']=()=>`
+${statusbar()}
+<div class="scroll pad pt-status" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+  <div class="success-ring">${I.checkc}</div>
+  <h2 style="font-family:var(--display);margin:18px 0 6px">Trip is live!</h2>
+  <p class="muted" style="margin:0;font-size:14px">Passengers searching Dakar → Thiès can now see and book your seats.</p>
+  <div style="height:22px"></div>
+  <div class="card" style="padding:16px;text-align:left">
+    <div class="between" style="margin-bottom:8px"><span class="muted tiny">Route</span><span style="font-weight:600;font-size:13px">Plateau → Thiès</span></div>
+    <div class="between" style="margin-bottom:8px"><span class="muted tiny">Seats</span><span style="font-weight:600;font-size:13px">3 · 2 500 FCFA each</span></div>
+    <div class="between"><span class="muted tiny">Departure</span><span style="font-weight:600;font-size:13px">Today · 07:30</span></div>
+  </div>
+  <div style="height:18px"></div>
+  <button class="btn btn-primary" onclick="nav('d-requests')">View booking requests ${I.arrowright}</button>
+  <div style="height:10px"></div><button class="btn btn-ghost" onclick="nav('d-home')">Back to home</button>
+</div>`;
+
+D['d-requests']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Booking requests</h2><div class="sub">Plateau → Thiès · Today 07:30</div></div></div>
+<div class="scroll pad">
+  <div class="card" style="padding:16px;margin-bottom:12px;background:var(--success-tint);border-color:#bfe6cf">
+    <div class="row"><div class="avatar" style="width:42px;height:42px;background:#1E8A2A">AD</div>
+    <div style="flex:1"><div style="font-weight:700;font-family:var(--display);font-size:14px">Awa Diop</div><div class="tiny" style="color:#0c6b3c">${stars(4.9)} · paid · escrow held</div></div>
+    <span class="chip green">${I.check} Accepted</span></div>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:12px" id="req2">
+    <div class="row" style="margin-bottom:13px"><div class="avatar" style="width:42px;height:42px;background:#C2410C">OS</div>
+    <div style="flex:1"><div style="font-weight:700;font-family:var(--display);font-size:14px">Ousmane Sow</div><div class="tiny muted">${stars(4.6)} · 1 seat · payment confirmed</div></div></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-ghost btn-sm" style="flex:1" onclick="reject('req2')">Decline</button>
+    <button class="btn btn-primary btn-sm" style="flex:1.6" onclick="accept('req2')">Accept booking</button></div>
+  </div>
+  <div class="note">${I.wallet}<span>Each seat earns you <b>2 225 FCFA</b> after the 11% platform fee, paid out when the trip completes.</span></div>
+</div>
+${dtabbar('trips')}`;
+
+D['d-wallet']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div><h2>Earnings</h2><div class="sub">Wallet &amp; payouts</div></div></div>
+<div class="scroll pad">
+  <div class="card" style="padding:20px;background:linear-gradient(150deg,#13201B,#14661C);border:0;color:#fff">
+    <div class="tiny" style="opacity:.8">Withdrawable balance</div>
+    <div class="price" style="font-size:30px;margin:6px 0 14px">84 200 <span style="font-size:15px;opacity:.8">FCFA</span></div>
+    <button class="btn btn-accent" onclick="nav('d-payout')">${I.wallet} Request payout</button>
+  </div>
+  <div style="height:16px"></div>
+  <div class="row" style="gap:12px">
+    <div class="card" style="padding:16px;flex:1"><div class="tiny muted">This week</div><div class="price" style="font-size:18px;margin-top:4px">22 250</div></div>
+    <div class="card" style="padding:16px;flex:1"><div class="tiny muted">Completed</div><div class="price" style="font-size:18px;margin-top:4px">312</div></div>
+  </div>
+  <div style="height:18px"></div>
+  <div class="between"><div style="font-family:var(--display);font-weight:700;font-size:15px">Recent earnings</div></div>
+  <div style="height:10px"></div>
+  ${[['Plateau → Thiès','+2 225','Today','green'],['Thiès → Dakar','+4 450','Yesterday','green'],['Payout to Wave','−40 000','Mar 10','red']].map(r=>`
+  <div class="li" style="margin-bottom:10px"><div class="avatar" style="width:38px;height:38px;background:var(--surface-2);color:${r[3]==='red'?'var(--danger)':'var(--primary)'}">${r[3]==='red'?I.wallet:I.car}</div>
+  <div style="flex:1"><div style="font-weight:600;font-size:14px">${r[0]}</div><div class="tiny muted">${r[2]}</div></div>
+  <div class="price" style="color:${r[3]==='red'?'var(--danger)':'var(--success)'};font-size:14px">${r[1]}</div></div>`).join('')}
+</div>
+${dtabbar('wallet')}`;
+
+D['d-payout']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Request payout</h2></div></div>
+<div class="scroll pad">
+  <p class="label">Cash out to</p>
+  <div class="payopt sel" onclick="pickPay('wave')"><div class="logo" style="background:var(--wave)">Wave</div><div><div style="font-weight:600">Wave</div><div class="tiny muted">+221 77 ••• 32</div></div><div class="radio"></div></div>
+  <div style="height:10px"></div>
+  <div class="payopt" onclick="pickPay('om')"><div class="logo" style="background:var(--om)">OM</div><div><div style="font-weight:600">Orange Money</div><div class="tiny muted">+221 78 ••• 11</div></div><div class="radio"></div></div>
+  <div style="height:18px"></div>
+  <p class="label">Amount</p>
+  <div class="field"><span style="font-family:var(--display);font-weight:700;color:var(--ink)">FCFA</span><input value="84 200"/></div>
+  <div style="height:14px"></div>
+  <div class="note">${I.shield}<span>Payouts settle to your mobile wallet instantly during business hours.</span></div>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('d-payout-done')">Withdraw 84 200 FCFA ${I.check}</button></div>`;
+
+D['d-payout-done']=()=>`
+${statusbar()}
+<div class="scroll pad pt-status" style="display:flex;flex-direction:column;justify-content:center;text-align:center">
+  <div class="success-ring">${I.checkc}</div>
+  <h2 style="font-family:var(--display);margin:18px 0 6px">Payout sent</h2>
+  <p class="muted" style="margin:0;font-size:14px">84 200 FCFA is on its way to your Wave wallet.</p>
+  <div style="height:24px"></div><button class="btn btn-primary" onclick="nav('d-wallet')">Done</button>
+</div>`;
+
+D['d-profile']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><div><h2>Driver profile</h2></div></div>
+<div class="scroll pad" style="text-align:center">
+  <div class="avatar" style="background:#1E8A2A;width:84px;height:84px;margin:8px auto 0;font-size:28px">MS</div>
+  <div style="font-family:var(--display);font-weight:700;font-size:19px;margin-top:12px">Moussa Sane</div>
+  <div class="tiny muted">${stars(4.9)} 4.9 · 312 trips <span class="ico-sm">${I.shield}</span> Verified</div>
+  <div style="height:20px"></div>
+  <div style="text-align:left">
+    ${[['shield','KYC &amp; documents','d-kyc'],['car','My vehicle','Toyota Corolla'],['wallet','Payout accounts','Wave · OM'],['star','Passenger ratings','d-rate']].map(r=>`
+    <div class="li" style="margin-bottom:10px;cursor:pointer" ${r[2].startsWith('d-')?`onclick="nav('${r[2]}')"`:''}><div class="avatar" style="width:38px;height:38px;background:var(--surface-2);color:var(--primary)">${I[r[0]]}</div>
+    <div style="flex:1"><div style="font-weight:600;font-size:14px">${r[1]}</div><div class="tiny muted">${r[2].startsWith('d-')?'Tap to open':r[2]}</div></div>${I.arrowright}</div>`).join('')}
+  </div>
+  <div style="height:14px"></div>
+  <button class="btn btn-ghost" onclick="setRole('passenger')">${I.user} Switch to Passenger mode</button>
+</div>
+${dtabbar('profile')}`;
+
+D['d-rate']=()=>`
+${statusbar()}
+<div class="apphead pt-status"><button class="iconbtn" onclick="back()">${I.back}</button><div><h2 style="font-size:18px">Rate passenger</h2></div></div>
+<div class="scroll pad" style="text-align:center">
+  <div style="height:10px"></div>
+  <div class="avatar" style="background:#1E8A2A;width:72px;height:72px;margin:0 auto;font-size:24px">AD</div>
+  <div style="font-family:var(--display);font-weight:700;font-size:18px;margin-top:12px">How was Awa?</div>
+  <div class="tiny muted">Rate punctuality &amp; behaviour</div>
+  <div style="height:20px"></div>
+  <div class="ratepick" id="rate">${[1,2,3,4,5].map(i=>`<span data-v="${i}" onclick="setRate(${i})">${I.star}</span>`).join('')}</div>
+  <div style="height:20px"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><span class="chip filterchip" onclick="this.classList.toggle('on')">Punctual</span><span class="chip filterchip" onclick="this.classList.toggle('on')">Polite</span><span class="chip filterchip" onclick="this.classList.toggle('on')">Easy pickup</span></div>
+</div>
+<div class="dock"><button class="btn btn-primary" onclick="nav('d-home')">Submit ${I.check}</button></div>`;
+
+/* ===================== ADMIN (desktop) ===================== */
+const ADMIN_NAV=[['dash','Dashboard','<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg>'],
+['kyc','KYC desk',I.shield],
+['ledger','Escrow ledger',I.wallet],
+['comm','Commission','<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'],
+['cms','Notifications &amp; CMS',I.bell]];
+
+function renderAdmin(){
+  const d=document.getElementById('desktop');
+  d.innerHTML=`<div class="admin active">
+    <div class="aside">
+      <div class="lg"><div class="mark">${logoEmblem(28)}</div><h3>SenRide Admin</h3></div>
+      ${ADMIN_NAV.map((n,i)=>`<div class="anav ${i===0?'on':''}" data-a="${n[0]}" onclick="adminNav('${n[0]}')">${n[2]}<span>${n[1]}</span></div>`).join('')}
+      <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 13px;border-top:1px solid #28392f"><div class="avatar" style="width:34px;height:34px;background:var(--accent);color:#3a2a05;font-size:13px">SA</div><div style="font-size:12.5px"><div style="color:#fff;font-weight:600">Super Admin</div><div style="color:#7e9189">ops@senride.sn</div></div></div>
+    </div>
+    <div class="amain">
+      ${adminDash()}${adminKyc()}${adminLedger()}${adminComm()}${adminCms()}
+    </div>
+  </div>`;
+  adminNav('dash');
+}
+function adminNav(id){
+  document.querySelectorAll('.anav').forEach(e=>e.classList.toggle('on',e.dataset.a===id));
+  document.querySelectorAll('.apage').forEach(e=>e.classList.toggle('active',e.id==='a-'+id));
+}
+function adminDash(){return `<div class="apage active" id="a-dash">
+  <div class="ahead"><div><h2>Dashboard</h2><p>Real-time platform overview · Dakar region</p></div><div class="seg"><button class="on">Today</button><button>Week</button><button>Month</button></div></div>
+  <div class="kpis">
+    ${[['Active rides','148','+12%'],['Revenue (today)','1.24M FCFA','+8.4%'],['New users','326','+23%'],['Pending KYC','17','review']].map((k,i)=>`
+    <div class="kpi"><div class="tiny muted">${k[0]}</div><div class="v">${k[1]}</div><div class="d ${i<3?'up':''}">${i<3?I.up:''}${k[2]}</div></div>`).join('')}
+  </div>
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+    <div class="panel"><h4>Bookings this week <span class="chip green">${I.up} 8.4%</span></h4>
+      <div class="bars">${[['Mo',60],['Tu',75],['We',55],['Th',88],['Fr',100,'hi'],['Sa',92],['Su',46]].map(b=>`<div class="b ${b[2]||''}" style="height:${b[1]}%"><span>${Math.round(b[1]*7)}</span><i>${b[0]}</i></div>`).join('')}</div>
+    </div>
+    <div class="panel"><h4>Payment split</h4>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:6px">
+        ${[['Wave','62%',62,'var(--wave)'],['Orange Money','35%',35,'var(--om)'],['Other','3%',3,'var(--ink-3)']].map(p=>`
+        <div><div class="between" style="margin-bottom:5px"><span class="tiny" style="font-weight:600">${p[0]}</span><span class="tiny muted kbd">${p[1]}</span></div>
+        <div style="height:9px;background:var(--surface-2);border-radius:99px"><div style="height:9px;width:${p[2]}%;background:${p[3]};border-radius:99px"></div></div></div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div class="between"><span class="tiny muted">Escrow held now</span><span class="price" style="font-size:15px">3.8M FCFA</span></div>
+    </div>
+  </div>
+  <div class="panel"><h4>Live rides <span class="tiny muted" style="font-weight:400">auto-refresh</span></h4>
+    <table><thead><tr><th>Route</th><th>Driver</th><th>Passengers</th><th>Status</th><th>Fare</th></tr></thead><tbody>
+    ${[['Plateau → Thiès','Moussa S.','2/3','In transit','green','5 000'],['Dakar → Mbour','Fatou N.','2/2','Boarding','amber','3 600'],['Thiès → Touba','Ibrahima B.','3/4','Confirmed','green','6 600']].map(r=>`
+    <tr style="cursor:pointer" onclick="toast('Ride ${r[0]} · ${r[3]}')"><td style="font-weight:600">${r[0]}</td><td>${r[1]}</td><td class="kbd">${r[2]}</td><td><span class="dot" style="background:var(--${r[4]==='green'?'success':'accent'})"></span>${r[3]}</td><td class="kbd" style="font-weight:600">${r[5]} F</td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;}
+
+function adminKyc(){return `<div class="apage" id="a-kyc">
+  <div class="ahead"><div><h2>KYC verification desk</h2><p>Review driver documents · approve or reject</p></div><span class="chip amber">17 pending</span></div>
+  <div class="panel"><h4>Awaiting review</h4>
+    <table><thead><tr><th>Driver</th><th>Documents</th><th>Submitted</th><th>Vehicle</th><th style="text-align:right">Action</th></tr></thead><tbody>
+    ${[['Cheikh Fall','CF','License · ID · Reg','2h ago','Peugeot 301'],['Aïda Diallo','AD','License · ID · Reg','5h ago','Suzuki Alto'],['Mamadou Ka','MK','License · ID · Reg','1d ago','Renault Logan']].map((r,i)=>`
+    <tr id="kyc${i}"><td><div class="row"><div class="avatar" style="width:34px;height:34px;font-size:12px;background:var(--primary)">${r[1]}</div><span style="font-weight:600">${r[0]}</span></div></td>
+    <td><span class="chip blue">${r[2]}</span></td><td class="muted">${r[3]}</td><td class="muted">${r[4]}</td>
+    <td style="text-align:right;white-space:nowrap"><button class="btn btn-sm btn-ghost" style="display:inline-flex;width:auto;margin-right:6px" onclick="kycAct(${i},0)">Reject</button><button class="btn btn-sm btn-primary" style="display:inline-flex;width:auto" onclick="kycAct(${i},1)">Approve</button></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+  <div class="note">${I.shield}<span>Approving issues the driver a verified badge and unlocks trip publishing. Documents are encrypted at rest.</span></div>
+</div>`;}
+
+function adminLedger(){return `<div class="apage" id="a-ledger">
+  <div class="ahead"><div><h2>Transaction &amp; escrow ledger</h2><p>Deposits · escrows · payouts</p></div><div class="seg"><button class="on">All</button><button>Escrow</button><button>Payouts</button></div></div>
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+    ${[['Collected (today)','1.24M FCFA'],['Platform fee earned','136K FCFA'],['Held in escrow','3.8M FCFA']].map(k=>`<div class="kpi"><div class="tiny muted">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('')}
+  </div>
+  <div class="panel"><h4>Recent transactions</h4>
+    <table><thead><tr><th>ID</th><th>Type</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+    ${[['SR-90412','Booking deposit','Wave','2 500','Escrow held','amber'],['SR-90410','Payout','Orange Money','40 000','Completed','green'],['SR-90408','Booking deposit','Orange Money','3 600','Released','green'],['SR-90405','Refund','Wave','1 800','Refunded','red'],['SR-90401','Platform fee','—','275','Collected','green']].map(r=>`
+    <tr style="cursor:pointer" onclick="toast('Transaction ${r[0]} · ${r[4]}')"><td class="kbd muted">${r[0]}</td><td style="font-weight:600">${r[1]}</td><td>${r[2]}</td><td class="kbd" style="font-weight:600">${r[3]} F</td><td><span class="chip ${r[5]}">${r[4]}</span></td></tr>`).join('')}
+    </tbody></table>
+  </div>
+</div>`;}
+
+function adminComm(){return `<div class="apage" id="a-comm">
+  <div class="ahead"><div><h2>Commission configurator</h2><p>Set the service fee charged per seat booked</p></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="panel"><h4>Fee model</h4>
+      <div class="seg" style="width:100%;margin-bottom:18px"><button class="on" style="flex:1">Percentage</button><button style="flex:1">Flat fee</button></div>
+      <p class="label">Commission rate</p>
+      <div class="field" style="margin-bottom:16px"><input value="11" style="font-family:var(--display);font-weight:700;font-size:20px"/><span style="font-weight:700;color:var(--ink)">%</span></div>
+      <input type="range" min="5" max="20" value="11" style="width:100%;accent-color:var(--primary)"/>
+      <div class="between tiny muted" style="margin-top:4px"><span>5%</span><span>20%</span></div>
+      <div class="divider"></div>
+      <div class="between" style="margin-bottom:8px"><span class="tiny muted">On a 2 500 FCFA seat</span></div>
+      <div class="between"><span class="tiny">Driver receives</span><span class="kbd" style="font-weight:600">2 225 F</span></div>
+      <div class="between"><span class="tiny">Platform keeps</span><span class="kbd" style="font-weight:600;color:var(--primary)">275 F</span></div>
+    </div>
+    <div class="panel"><h4>Active rules</h4>
+      ${[['Standard routes','11%',1],['Long-distance (>200km)','9%',1],['Promo: New riders','0% (first ride)',0]].map(r=>`
+      <div class="li" style="margin-bottom:10px"><div style="flex:1"><div style="font-weight:600;font-size:14px">${r[0]}</div><div class="tiny muted">Per seat · ${r[1]}</div></div><div class="toggle ${r[2]?'on':''}" onclick="this.classList.toggle('on')"></div></div>`).join('')}
+      <div style="height:8px"></div>
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="toast('Commission settings saved')">${I.check} Save commission settings</button>
+    </div>
+  </div>
+</div>`;}
+
+function adminCms(){return `<div class="apage" id="a-cms">
+  <div class="ahead"><div><h2>Notifications &amp; CMS</h2><p>Broadcast announcements · banners · disputes</p></div><button class="btn btn-primary btn-sm" style="width:auto;display:inline-flex" onclick="toast('New broadcast composer opened')">${I.plus} New broadcast</button></div>
+  <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px">
+    <div class="panel"><h4>Compose announcement</h4>
+      <p class="label">Title</p><div class="field" style="margin-bottom:12px"><input value="Tabaski travel — extra rides available"/></div>
+      <p class="label">Message</p><div class="field" style="align-items:flex-start;height:90px;margin-bottom:12px"><input value="Book early for Dakar → regions. Verified drivers added." style="height:100%"/></div>
+      <div class="between"><span class="tiny muted">Audience: All users (Push + SMS)</span><button class="btn btn-primary btn-sm" style="width:auto;display:inline-flex" onclick="toast('Announcement sent to all users')">${I.send} Send</button></div>
+    </div>
+    <div class="panel"><h4>Open disputes</h4>
+      ${[['Refund request · SR-90405','Awa D.','red'],['No-show report · SR-90388','Driver','amber'],['Payment delay · SR-90377','Resolved','green']].map(r=>`
+      <div class="li" style="margin-bottom:10px;cursor:pointer" onclick="toast('Opening dispute: ${r[0]}')"><div class="avatar" style="width:34px;height:34px;background:var(--surface-2);color:var(--${r[2]==='red'?'danger':r[2]==='amber'?'accent':'success'})">${I.bell}</div>
+      <div style="flex:1"><div style="font-weight:600;font-size:13px">${r[0]}</div><div class="tiny muted">${r[1]}</div></div><span class="dot" style="background:var(--${r[2]==='red'?'danger':r[2]==='amber'?'accent':'success'})"></span></div>`).join('')}
+    </div>
+  </div>
+</div>`;}
+
+/* ===================== router ===================== */
+const SCREENS=Object.assign({},P,D);
+function render(id){
+  const h=document.getElementById('holder');
+  h.innerHTML=`<div class="screen active">${SCREENS[id]()}</div>`;
+  const sc=h.querySelector('.scroll'); if(sc) sc.scrollTop=0;
+}
+function nav(id){ if(SCREENS[id]){ stack.push(id); render(id); logEvent('screen_view', id); } }
+function back(){ stack.pop(); const prev=stack[stack.length-1]; if(prev) render(prev); }
+
+function setRole(r){
+  role=r;
+  logEvent('role_switch', r);
+  document.querySelectorAll('#roleswitch button').forEach(b=>b.classList.toggle('on',b.dataset.role===r));
+  const phone=document.getElementById('phone'), desk=document.getElementById('desktop'), hint=document.getElementById('hint');
+  if(r==='admin'){ phone.style.display='none'; desk.style.display='block'; renderAdmin();
+    hint.querySelector('span').textContent='Super-Admin web panel. Click the sidebar to move between Dashboard, KYC desk, Ledger, Commission and CMS.';
+  } else {
+    desk.style.display='none'; phone.style.display='block';
+    stack=[ r==='driver'?'d-home':'p-login' ]; render(stack[0]);
+    hint.querySelector('span').textContent='Tap any button to move through the flow. Use the switch above to jump between Passenger, Driver and Admin.';
+  }
+}
+
+/* ===================== interactions ===================== */
+let seatCount=1;
+function seat(d){ const el=document.getElementById('seatN'); if(!el) return; let v=parseInt(el.textContent)+d; v=Math.max(1,Math.min(4,v)); el.textContent=v; seatCount=v;
+  const lbl=document.getElementById('seatLbl'); if(lbl) lbl.textContent=v+(v>1?' seats':' seat');
+}
+function pickPay(m){ document.querySelectorAll('.payopt').forEach(p=>p.classList.remove('sel'));
+  const el=document.getElementById('pay-'+m)||event.currentTarget; if(el)el.classList.add('sel');
+  const btn=document.getElementById('payBtn'); if(btn) btn.textContent='Pay 2 500 FCFA with '+(m==='om'?'Orange Money':'Wave');
+}
+function payNow(){ const b=document.getElementById('payBtn'); b.textContent='Processing payment…'; b.style.filter='brightness(.95)';
+  setTimeout(()=>nav('p-confirm'),900);
+}
+function setRate(v){ document.querySelectorAll('#rate span').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.v)<=v)); }
+function fillOtp(){ document.querySelectorAll('#otp .box').forEach((b,i)=>{ b.textContent='2058'[i]||'';
+ b.classList.toggle('fill', i<4); }); }
+function accept(id){ const c=document.getElementById(id); c.style.background='var(--success-tint)'; c.style.borderColor='#bfe6cf';
+  c.innerHTML=`<div class="row"><div class="avatar" style="width:42px;height:42px;background:#C2410C">OS</div><div style="flex:1"><div style="font-weight:700;font-family:var(--display);font-size:14px">Ousmane Sow</div><div class="tiny" style="color:#0c6b3c">Accepted · seat confirmed</div></div><span class="chip green">${I.check} Accepted</span></div>`;
+}
+function reject(id){ const c=document.getElementById(id); c.style.opacity='.5';
+  c.innerHTML=`<div class="row"><div class="avatar" style="width:42px;height:42px;background:var(--surface-2);color:var(--ink-3)">OS</div><div style="flex:1"><div style="font-weight:700;font-family:var(--display);font-size:14px">Ousmane Sow</div><div class="tiny muted">Declined · seat released</div></div></div>`;
+}
+function kycAct(i,ok){ const r=document.getElementById('kyc'+i); const cell=r.lastElementChild;
+  cell.innerHTML = ok ? `<span class="chip green" style="float:right">${I.check} Approved</span>` : `<span class="chip red" style="float:right">Rejected</span>`;
+  r.style.opacity = ok? '1':'.55';
+}
+
+/* ---- feedback + small interactions ---- */
+let toastT;
+function toast(msg,ok){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);} 
+  t.innerHTML=(ok!==false?I.check:'')+`<span>${msg}</span>`;
+  t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+/* delegated clicks: segmented controls + filter chips toggle their active state everywhere */
+document.addEventListener('click',e=>{
+  const seg=e.target.closest('.seg button');
+  if(seg){ seg.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on')); seg.classList.add('on');
+    const lbl=seg.textContent.trim(); if(lbl) toast(lbl+' selected'); return; }
+  const fc=e.target.closest('.filterchip');
+  if(fc){ fc.classList.toggle('on'); return; }
+});
+function sendMsg(){ const inp=document.getElementById('msgInput'); const box=document.getElementById('chatBox');
+  if(!inp||!box) return; const v=inp.value.trim()||'À bientôt 👍'; 
+  const b=document.createElement('div'); b.className='bubble me'; b.textContent=v; box.appendChild(b); inp.value='';
+  box.scrollTop=box.scrollHeight;
+  setTimeout(()=>{ const r=document.createElement('div'); r.className='bubble them'; r.textContent='Parfait, merci !'; box.appendChild(r); box.scrollTop=box.scrollHeight; },700);
+}
+function addStop(){ const host=document.getElementById('stopsHost'); if(!host) return;
+  const row=document.createElement('div'); row.className='field'; row.style.margin='10px 0 0';
+  row.innerHTML=`<span style="color:var(--accent)">${I.pin}</span><input value="Rufisque"/>`; host.appendChild(row);
+  toast('Intermediate stop added');
+}
+function payNowM(m){ pickPay(m); }
+function sortResults(label,el){ document.querySelectorAll('.filterchip').forEach(c=>c.classList.remove('on')); if(el)el.classList.add('on'); toast(label); }
+
+/* scale the phone uniformly so it always fits the viewport without distorting content */
+function fitPhone(){
+  const wrap=document.querySelector('.devicewrap');
+  if(!wrap) return;
+  if(window.innerWidth<=560){ document.documentElement.style.setProperty('--ps','1'); return; }
+  const h=wrap.clientHeight, w=wrap.clientWidth;
+  const scale=Math.min(1,(h-10)/812,(w-10)/392);
+  document.documentElement.style.setProperty('--ps', (scale>0?scale:1).toFixed(4));
+}
+window.addEventListener('resize',fitPhone);
+window.addEventListener('load',fitPhone);
+
+/* boot */
+logEvent('session_start', 'landed on prototype');
+document.getElementById('brandMark').innerHTML=logoEmblem(30);
+setRole('passenger');
+fitPhone(); requestAnimationFrame(fitPhone);
+</script>
