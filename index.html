@@ -284,16 +284,25 @@ tr:last-child td{border-bottom:0}
   .desktop{border-radius:0;border:0;height:100%;width:100%;min-width:0;max-width:100%}
   /* admin panel: collapse multi-column layouts so nothing overflows on phones */
   .admin{width:100%;max-width:100%;min-width:0}
-  .amain{padding:18px 14px;overflow-x:hidden;overflow-y:auto;width:100%;max-width:100%}
+  .amain{padding:16px 12px;overflow-x:hidden;overflow-y:auto;width:100%;max-width:100%}
   .amain div[style*="grid-template-columns"]:not(.kpis){grid-template-columns:1fr!important}
   .amain .kpis{grid-template-columns:repeat(2,1fr)!important;gap:10px}
   .kpi{padding:13px;min-width:0}.kpi .v{font-size:18px}
   .ahead h2{font-size:19px}
-  .panel{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-  .panel table{min-width:480px}
-  .amain th,.amain td{padding:8px 7px;font-size:11.5px;white-space:nowrap}
+  .panel{overflow:hidden;max-width:100%}
   .bars{min-width:0}.bars .b{min-width:0}
   .aside{padding:10px 12px}
+  /* tables → stacked cards (no horizontal scroll, fully fluid) */
+  .panel table,.panel tbody,.panel tr,.panel td{display:block;width:auto;min-width:0}
+  .panel thead{display:none}
+  .panel table{border-collapse:separate}
+  .panel tr{border:1px solid var(--line);border-radius:13px;padding:10px 13px;margin-bottom:10px;background:var(--surface)}
+  .panel tr:last-child{margin-bottom:0}
+  .panel td{border:0!important;padding:6px 0;display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:13px;text-align:right;white-space:normal}
+  .panel td::before{content:attr(data-label);font-weight:600;color:var(--ink-2);font-size:12px;text-align:left;flex:none}
+  .panel td:first-child{padding:0 0 8px;margin-bottom:4px;border-bottom:1px solid var(--line-2)!important;justify-content:flex-start;font-weight:700;font-size:14.5px}
+  .panel td:first-child::before{display:none}
+  .panel td:last-child{justify-content:flex-end}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -1107,7 +1116,7 @@ function adminDash(){return `<div class="apage active" id="a-dash">
   <div class="panel"><h4>Live rides <span class="tiny muted" style="font-weight:400">auto-refresh</span></h4>
     <table><thead><tr><th>Route</th><th>Driver</th><th>Passengers</th><th>Status</th><th>Fare</th></tr></thead><tbody>
     ${[['Plateau → Thiès','Moussa S.','2/3','In transit','green','5 000'],['Dakar → Mbour','Fatou N.','2/2','Boarding','amber','3 600'],['Thiès → Touba','Ibrahima B.','3/4','Confirmed','green','6 600']].map(r=>`
-    <tr style="cursor:pointer" onclick="toast('Ride ${r[0]} · ${r[3]}')"><td style="font-weight:600">${r[0]}</td><td>${r[1]}</td><td class="kbd">${r[2]}</td><td><span class="dot" style="background:var(--${r[4]==='green'?'success':'accent'})"></span>${r[3]}</td><td class="kbd" style="font-weight:600">${r[5]} F</td></tr>`).join('')}
+    <tr style="cursor:pointer" onclick="toast('Ride ${r[0]} · ${r[3]}')"><td data-label="Route" style="font-weight:600">${r[0]}</td><td data-label="Driver">${r[1]}</td><td data-label="Passengers" class="kbd">${r[2]}</td><td data-label="Status"><span class="dot" style="background:var(--${r[4]==='green'?'success':'accent'})"></span>${r[3]}</td><td data-label="Fare" class="kbd" style="font-weight:600">${r[5]} F</td></tr>`).join('')}
     </tbody></table>
   </div>
 </div>`;}
@@ -1117,9 +1126,9 @@ function adminKyc(){return `<div class="apage" id="a-kyc">
   <div class="panel"><h4>Awaiting review</h4>
     <table><thead><tr><th>Driver</th><th>Documents</th><th>Submitted</th><th>Vehicle</th><th style="text-align:right">Action</th></tr></thead><tbody>
     ${[['Cheikh Fall','CF','License · ID · Reg','2h ago','Peugeot 301'],['Aïda Diallo','AD','License · ID · Reg','5h ago','Suzuki Alto'],['Mamadou Ka','MK','License · ID · Reg','1d ago','Renault Logan']].map((r,i)=>`
-    <tr id="kyc${i}"><td><div class="row"><div class="avatar" style="width:34px;height:34px;font-size:12px;background:var(--primary)">${r[1]}</div><span style="font-weight:600">${r[0]}</span></div></td>
-    <td><span class="chip blue">${r[2]}</span></td><td class="muted">${r[3]}</td><td class="muted">${r[4]}</td>
-    <td style="text-align:right;white-space:nowrap"><button class="btn btn-sm btn-ghost" style="display:inline-flex;width:auto;margin-right:6px" onclick="kycAct(${i},0)">Reject</button><button class="btn btn-sm btn-primary" style="display:inline-flex;width:auto" onclick="kycAct(${i},1)">Approve</button></td></tr>`).join('')}
+    <tr id="kyc${i}"><td data-label="Driver"><div class="row"><div class="avatar" style="width:34px;height:34px;font-size:12px;background:var(--primary)">${r[1]}</div><span style="font-weight:600">${r[0]}</span></div></td>
+    <td data-label="Documents"><span class="chip blue">${r[2]}</span></td><td data-label="Submitted" class="muted">${r[3]}</td><td data-label="Vehicle" class="muted">${r[4]}</td>
+    <td data-label="Action" style="text-align:right;white-space:nowrap"><button class="btn btn-sm btn-ghost" style="display:inline-flex;width:auto;margin-right:6px" onclick="kycAct(${i},0)">Reject</button><button class="btn btn-sm btn-primary" style="display:inline-flex;width:auto" onclick="kycAct(${i},1)">Approve</button></td></tr>`).join('')}
     </tbody></table>
   </div>
   <div class="note">${I.shield}<span>Approving issues the driver a verified badge and unlocks trip publishing. Documents are encrypted at rest.</span></div>
@@ -1133,7 +1142,7 @@ function adminLedger(){return `<div class="apage" id="a-ledger">
   <div class="panel"><h4>Recent transactions</h4>
     <table><thead><tr><th>ID</th><th>Type</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead><tbody>
     ${[['SR-90412','Booking deposit','Wave','2 500','Escrow held','amber'],['SR-90410','Payout','Orange Money','40 000','Completed','green'],['SR-90408','Booking deposit','Orange Money','3 600','Released','green'],['SR-90405','Refund','Wave','1 800','Refunded','red'],['SR-90401','Platform fee','—','275','Collected','green']].map(r=>`
-    <tr style="cursor:pointer" onclick="toast('Transaction ${r[0]} · ${r[4]}')"><td class="kbd muted">${r[0]}</td><td style="font-weight:600">${r[1]}</td><td>${r[2]}</td><td class="kbd" style="font-weight:600">${r[3]} F</td><td><span class="chip ${r[5]}">${r[4]}</span></td></tr>`).join('')}
+    <tr style="cursor:pointer" onclick="toast('Transaction ${r[0]} · ${r[4]}')"><td data-label="ID" class="kbd muted">${r[0]}</td><td data-label="Type" style="font-weight:600">${r[1]}</td><td data-label="Method">${r[2]}</td><td data-label="Amount" class="kbd" style="font-weight:600">${r[3]} F</td><td data-label="Status"><span class="chip ${r[5]}">${r[4]}</span></td></tr>`).join('')}
     </tbody></table>
   </div>
 </div>`;}
