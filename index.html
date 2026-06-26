@@ -35,14 +35,15 @@ body{font-family:var(--font);color:var(--ink);overflow:hidden;
 
 /* ---------- Stage / chrome ---------- */
 .stage{max-width:1180px;height:100dvh;margin:0 auto;padding:16px 22px 10px;display:flex;flex-direction:column}
-.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;flex:none}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;margin-bottom:12px;flex:none}
+.topbar .brand{justify-self:start}
 .brand{display:flex;align-items:center;gap:11px}
 .brand .mark{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
   background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
 .brand h1{font-family:var(--display);font-size:21px;font-weight:700;margin:0;letter-spacing:-.02em}
 .brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink-2)}
 .roleswitch{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);
-  padding:6px;border-radius:16px;box-shadow:var(--shadow);margin-left:auto}
+  padding:6px;border-radius:16px;box-shadow:var(--shadow)}
 .roleswitch button{font-family:var(--display);font-weight:600;font-size:13.5px;color:var(--ink-2);
   border:0;background:transparent;padding:10px 16px;border-radius:11px;cursor:pointer;
   display:flex;align-items:center;gap:8px;transition:background .18s,color .18s}
@@ -213,6 +214,12 @@ body{font-family:var(--font);color:var(--ink);overflow:hidden;
 .anav svg{width:18px;height:18px}
 .anav:hover{background:#1d2c25;color:#fff}
 .anav.on{background:var(--primary);color:#fff}
+.admin-select{display:none;appearance:none;-webkit-appearance:none;background-color:#1d2c25;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239fb0a8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;color:#fff;border:1px solid #2e4339;
+  border-radius:11px;padding:11px 38px 11px 14px;font-family:var(--display);font-weight:600;font-size:13.5px;
+  cursor:pointer;margin-left:auto;max-width:60%}
+.admin-select option{color:#14201b;background:#fff}
 .amain{padding:26px 30px;overflow:auto;background:var(--surface-2);min-height:0}
 .apage{display:none}.apage.active{display:block}
 .ahead{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
@@ -251,8 +258,11 @@ tr:last-child td{border-bottom:0}
 @media (max-width:900px){
   .kpis{grid-template-columns:repeat(2,1fr)}
   .admin{grid-template-columns:1fr;grid-template-rows:auto 1fr}
-  .aside{flex-direction:row;overflow-x:auto;overflow-y:hidden;gap:8px;padding:12px}
-  .aside .lg{margin-bottom:0;margin-right:6px}.anav{white-space:nowrap}
+  .aside{flex-direction:row;align-items:center;overflow:visible;gap:10px;padding:11px 14px}
+  .aside .lg{margin-bottom:0;margin-right:0}
+  .anav{display:none}
+  .asideuser{display:none}
+  .admin-select{display:block}
 }
 /* phones: drop the bezel, let the app fill the screen like a real install */
 @media (max-width:560px){
@@ -260,7 +270,7 @@ tr:last-child td{border-bottom:0}
   .topbar{padding:12px 14px;margin-bottom:0;background:rgba(246,247,245,.95);
     backdrop-filter:blur(10px);border-bottom:1px solid var(--line-2)}
   .brand p{display:none}.brand h1{font-size:18px}
-  .roleswitch{margin-left:auto;width:auto;padding:4px;gap:3px}
+  .roleswitch{width:auto;padding:4px;gap:3px}
   .roleswitch button{padding:9px 11px;font-size:12px}.roleswitch button span{display:none}
   .roleswitch button svg{width:18px;height:18px}
   .devicewrap{padding:0}
@@ -271,6 +281,15 @@ tr:last-child td{border-bottom:0}
   .pt-status,.apphead.pt-status{padding-top:14px}
   .hint{display:none}
   .desktop{border-radius:0;border:0;height:100%}
+  /* admin panel: collapse multi-column layouts so nothing overflows on phones */
+  .amain{padding:18px 14px}
+  .amain div[style*="grid-template-columns"]:not(.kpis){grid-template-columns:1fr!important}
+  .amain .kpis{grid-template-columns:repeat(2,1fr)!important;gap:10px}
+  .kpi{padding:13px}.kpi .v{font-size:18px}
+  .ahead h2{font-size:19px}
+  .panel{overflow-x:auto}
+  .amain th,.amain td{padding:9px 8px;font-size:12px}
+  .aside{padding:10px 12px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -1043,8 +1062,11 @@ function renderAdmin(){
   d.innerHTML=`<div class="admin active">
     <div class="aside">
       <div class="lg"><div class="mark">${logoEmblem(28)}</div><h3>SenRide Admin</h3></div>
+      <select id="adminSelect" class="admin-select" onchange="adminNav(this.value)" aria-label="Admin section">
+        ${ADMIN_NAV.map(n=>`<option value="${n[0]}">${n[1]}</option>`).join('')}
+      </select>
       ${ADMIN_NAV.map((n,i)=>`<div class="anav ${i===0?'on':''}" data-a="${n[0]}" onclick="adminNav('${n[0]}')">${n[2]}<span>${n[1]}</span></div>`).join('')}
-      <div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 13px;border-top:1px solid #28392f"><div class="avatar" style="width:34px;height:34px;background:var(--accent);color:#3a2a05;font-size:13px">SA</div><div style="font-size:12.5px"><div style="color:#fff;font-weight:600">Super Admin</div><div style="color:#7e9189">ops@senride.sn</div></div></div>
+      <div class="asideuser" style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 13px;border-top:1px solid #28392f"><div class="avatar" style="width:34px;height:34px;background:var(--accent);color:#3a2a05;font-size:13px">SA</div><div style="font-size:12.5px"><div style="color:#fff;font-weight:600">Super Admin</div><div style="color:#7e9189">ops@senride.sn</div></div></div>
     </div>
     <div class="amain">
       ${adminDash()}${adminKyc()}${adminLedger()}${adminComm()}${adminCms()}
@@ -1055,6 +1077,8 @@ function renderAdmin(){
 function adminNav(id){
   document.querySelectorAll('.anav').forEach(e=>e.classList.toggle('on',e.dataset.a===id));
   document.querySelectorAll('.apage').forEach(e=>e.classList.toggle('active',e.id==='a-'+id));
+  const sel=document.getElementById('adminSelect'); if(sel && sel.value!==id) sel.value=id;
+  if(typeof logEvent==='function') logEvent('admin_page', id);
 }
 function adminDash(){return `<div class="apage active" id="a-dash">
   <div class="ahead"><div><h2>Dashboard</h2><p>Real-time platform overview · Dakar region</p></div><div class="seg"><button class="on">Today</button><button>Week</button><button>Month</button></div></div>
