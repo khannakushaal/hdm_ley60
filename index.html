@@ -258,11 +258,11 @@ tr:last-child td{border-bottom:0}
 @media (max-width:900px){
   .kpis{grid-template-columns:repeat(2,1fr)}
   .admin{grid-template-columns:1fr;grid-template-rows:auto 1fr}
-  .aside{flex-direction:row;align-items:center;overflow:visible;gap:10px;padding:11px 14px}
-  .aside .lg{margin-bottom:0;margin-right:0}
-  .anav{display:none}
-  .asideuser{display:none}
-  .admin-select{display:block}
+  .aside{flex-direction:row;align-items:center;overflow:hidden;gap:10px;padding:11px 14px;min-width:0;max-width:100%}
+  .aside .lg{margin-bottom:0;margin-right:0;min-width:0;flex:none}
+  .anav{display:none!important}
+  .asideuser{display:none!important}
+  .admin-select{display:block;flex:1 1 auto;min-width:0;max-width:none;margin-left:6px}
 }
 /* phones: drop the bezel, let the app fill the screen like a real install */
 @media (max-width:560px){
