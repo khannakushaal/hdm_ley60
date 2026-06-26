@@ -203,7 +203,7 @@ body{font-family:var(--font);color:var(--ink);overflow:hidden;
 .bubble.me{background:var(--primary);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
 
 /* ---------- Admin desktop ---------- */
-.admin{display:none;grid-template-columns:236px 1fr;grid-template-rows:100%;width:100%;height:100%;min-height:0}
+.admin{display:none;grid-template-columns:236px 1fr;grid-template-rows:100%;width:100%;height:100%;min-height:0;min-width:0;max-width:100%}
 .admin.active{display:grid}
 .aside{background:var(--ink);color:#cfdcd6;padding:22px 16px;display:flex;flex-direction:column;gap:4px;min-height:0;overflow-y:auto}
 .aside .lg{display:flex;align-items:center;gap:10px;margin-bottom:22px;color:#fff}
@@ -220,7 +220,7 @@ body{font-family:var(--font);color:var(--ink);overflow:hidden;
   border-radius:11px;padding:11px 38px 11px 14px;font-family:var(--display);font-weight:600;font-size:13.5px;
   cursor:pointer;margin-left:auto;max-width:60%}
 .admin-select option{color:#14201b;background:#fff}
-.amain{padding:26px 30px;overflow:auto;background:var(--surface-2);min-height:0}
+.amain{padding:26px 30px;overflow:auto;background:var(--surface-2);min-height:0;min-width:0;max-width:100%}
 .apage{display:none}.apage.active{display:block}
 .ahead{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
 .ahead h2{font-family:var(--display);font-size:22px;margin:0;letter-spacing:-.02em}
@@ -266,7 +266,8 @@ tr:last-child td{border-bottom:0}
 }
 /* phones: drop the bezel, let the app fill the screen like a real install */
 @media (max-width:560px){
-  .stage{padding:0;max-width:100%}
+  html,body{overflow-x:hidden}
+  .stage{padding:0;max-width:100%;overflow:hidden}
   .topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;margin-bottom:0;
     background:rgba(246,247,245,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-2)}
   .brand p{display:none}.brand h1{font-size:17px}.brand .mark{width:38px;height:38px}
@@ -280,16 +281,18 @@ tr:last-child td{border-bottom:0}
   .statusbar{display:none}
   .pt-status,.apphead.pt-status{padding-top:14px}
   .hint{display:none}
-  .desktop{border-radius:0;border:0;height:100%}
+  .desktop{border-radius:0;border:0;height:100%;width:100%;min-width:0;max-width:100%}
   /* admin panel: collapse multi-column layouts so nothing overflows on phones */
-  .amain{padding:18px 14px}
+  .admin{width:100%;max-width:100%;min-width:0}
+  .amain{padding:18px 14px;overflow-x:hidden;overflow-y:auto;width:100%;max-width:100%}
   .amain div[style*="grid-template-columns"]:not(.kpis){grid-template-columns:1fr!important}
   .amain .kpis{grid-template-columns:repeat(2,1fr)!important;gap:10px}
-  .kpi{padding:13px}.kpi .v{font-size:18px}
+  .kpi{padding:13px;min-width:0}.kpi .v{font-size:18px}
   .ahead h2{font-size:19px}
-  .panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .panel{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
   .panel table{min-width:480px}
   .amain th,.amain td{padding:8px 7px;font-size:11.5px;white-space:nowrap}
+  .bars{min-width:0}.bars .b{min-width:0}
   .aside{padding:10px 12px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
